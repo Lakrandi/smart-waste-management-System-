@@ -6,7 +6,7 @@ const Sidebar = () => {
   const location = useLocation();
 
   const menuItems = [
-    { name: 'Home', path: '/home', icon: '🏠' },  
+    { name: 'Home', path: '/home', icon: '🏠' },
     { name: 'Complaints', path: '/complaints', icon: '📋' },
     { name: 'Feedback', path: '/feedback', icon: '⭐' },
     { name: 'Collection Schedule', path: '/schedule', icon: '📅' },
@@ -31,12 +31,12 @@ const Sidebar = () => {
                 onClick={() => navigate(item.path)}
                 style={{
                   ...styles.navItem,
-                  backgroundColor: isActive ? '#7a937b' : 'transparent',
-                  color: isActive ? '#ffffff' : '#e0e0e0',
-                  fontWeight: isActive ? 'bold' : 'normal',
+                  backgroundColor: isActive ? '#637d63' : 'transparent',
+                  color: '#ffffff',
+                  fontWeight: isActive ? '600' : 'normal',
                 }}
               >
-                <span style={{ marginRight: '10px' }}>{item.icon}</span>
+                <span style={{ marginRight: '12px' }}>{item.icon}</span>
                 {item.name}
               </button>
             );
@@ -45,7 +45,7 @@ const Sidebar = () => {
       </div>
 
       <button onClick={() => navigate('/auth')} style={styles.logoutBtn}>
-        <span>⚡</span> Log out
+        <span>⏻</span> Log out
       </button>
     </div>
   );
@@ -60,17 +60,17 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
-    padding: '25px 20px',
+    padding: '30px 20px',
     boxSizing: 'border-box',
     position: 'fixed',
     left: 0,
     top: 0,
-    zIndex: 100,  
+    zIndex: 100,
   },
-  logoContainer: { display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '35px' },
+  logoContainer: { display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '40px' },
   logoDot: { color: '#ffffff', fontSize: '18px' },
-  logoText: { margin: 0, fontSize: '22px', fontWeight: 'bold' },
-  nav: { display: 'flex', flexDirection: 'column', gap: '8px' },
+  logoText: { margin: 0, fontSize: '24px', fontWeight: 'bold', fontFamily: 'sans-serif' },
+  nav: { display: 'flex', flexDirection: 'column', gap: '10px' },
   navItem: {
     display: 'flex',
     alignItems: 'center',
@@ -91,7 +91,7 @@ const styles = {
     alignItems: 'center',
     gap: '10px',
     cursor: 'pointer',
-    padding: '10px',
+    padding: '12px 0',
     borderTop: '1px solid rgba(255,255,255,0.2)',
   }
 };
