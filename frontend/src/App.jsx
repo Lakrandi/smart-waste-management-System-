@@ -2,7 +2,6 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
  
 //1- import the folder parths for resident pages
-import AuthPage from './pages/resident/AuthPage';
 import ComplaintsPage from './pages/resident/ComplaintsPage';
 
 
@@ -20,9 +19,8 @@ function App() {
       <Routes>
          
         {/*2 - add roots here for resident pages */}
-        <Route path="/auth" element={<AuthPage />} />
         <Route path="/complaints" element={<ComplaintsPage />} />
-        
+      
 
         {/*2 - add roots here for admin pages */}
         <Route path="/admin/login" element={<AdminLogin />} />
