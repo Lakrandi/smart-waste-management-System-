@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
  
 //1- import the folder parths for resident pages
 import ComplaintsPage from './pages/resident/ComplaintsPage';
-
+import FeedbackPage from './pages/resident/FeedbackPage';
 
 
 //1- import the folder parths for admin pages
@@ -20,10 +20,13 @@ function App() {
          
         {/*2 - add roots here for resident pages */}
         <Route path="/complaints" element={<ComplaintsPage />} />
-      
+        <Route path="/feedback" element={<FeedbackPage />} />
+
+    
 
         {/*2 - add roots here for admin pages */}
         <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/feedback" element={<FeedbackPage />} />
 
 
         {/*  If the url is incorrect its navigate to complaint page  */}
