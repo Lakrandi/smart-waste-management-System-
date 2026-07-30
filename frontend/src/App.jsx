@@ -26,6 +26,7 @@ function App() {
 
         {/*2 - add roots here for admin pages */}
         <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/feedback" element={<FeedbackPage />} />
 
 
         {/*  If the url is incorrect its navigate to complaint page  */}
