@@ -175,7 +175,7 @@ const styles = {
     fontSize: '13.5px',
   },
   tableHeaderRow: {
-    backgroundColor: '#1b3b1e', // Figma Exact Dark Green
+    backgroundColor: '#1b3b1e',  
     color: '#ffffff',
   },
   th: {
@@ -188,7 +188,7 @@ const styles = {
   },
   tableRow: {
     backgroundColor: '#ffffff',
-    height: '56px', // සියලුම Rows එකම උසින් තැබීමට
+    height: '56px',  
   },
   td: {
     padding: '0 24px',
@@ -202,7 +202,7 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     height: '32px',
-    width: '130px', // Badge එක එකම සයිස් එකෙන් තැබීමට
+    width: '130px',  
     borderRadius: '4px',
     fontSize: '12px',
     fontWeight: '600',
