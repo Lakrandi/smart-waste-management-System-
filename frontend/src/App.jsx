@@ -3,9 +3,12 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
  
 //1- import the folder parths for resident pages
 import ComplaintsPage from './pages/resident/ComplaintsPage';
+ 
+import FeedbackPage from './pages/resident/FeedbackPage';
+import SchedulePage from './pages/resident/SchedulePage';
 import HomePage from './pages/resident/HomePage';
 import AboutPage from './pages/resident/AboutPage';
-
+ 
 
 
 //1- import the folder parths for admin pages
@@ -24,9 +27,12 @@ function App() {
          
         {/*2 - add roots here for resident pages */}
         <Route path="/complaints" element={<ComplaintsPage />} />
+ 
+        <Route path="/feedback" element={<FeedbackPage />} />
+        <Route path="/schedule" element={<SchedulePage />} />
         <Route path="/Home" element={<HomePage/>} />
         <Route path="/About" element={<AboutPage/>} />
-      
+ 
 
         {/*2 - add roots here for admin pages */}
         <Route path="/admin/login" element={<AdminLogin />} />
