@@ -13,9 +13,10 @@ import AboutPage from './pages/resident/AboutPage';
 
 //1- import the folder parths for admin pages
 import AdminLogin from './pages/admin/AdminLogin';
+import AdminComplaints from './pages/admin/AdminComplaints';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminSchedule from './pages/admin/AdminSchedule';
-
+ 
 
 
 
@@ -36,8 +37,10 @@ function App() {
 
         {/*2 - add roots here for admin pages */}
         <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/complaints" element={<AdminComplaints />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin/schedule" element={<AdminSchedule />} />
+ 
 
  
 
