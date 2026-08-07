@@ -50,7 +50,7 @@ function App() {
  
 
         {/*  If the url is incorrect its navigate to complaint page  */}
-        <Route path="*" element={<Navigate to="/complaints" replace />} />
+        <Route path="*" element={<Navigate to="/auth" replace />} />
       </Routes>
     </Router>
   );

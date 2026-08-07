@@ -121,6 +121,18 @@ const AuthPage = () => {
             <p style={styles.footerText}>
               Don't have an account? <span onClick={() => setIsSignUp(true)} style={styles.linkText}>Create one</span>
             </p>
+            {/* Admin direct link */}
+            <div style={{ marginTop: '20px', paddingTop: '15px', borderTop: '1px solid #e0e0e0', textAlign: 'center' }}> 
+              <p style={{ margin: 0, fontSize: '13px', color: '#666666' }}>
+                Are you a Council Officer or Admin?{' '}
+                <span
+                onClick={() => navigate('/admin/login')}
+                style={{ color: '#0d3b14', fontWeight: 'bold', cursor: 'pointer', textDecoration: 'underline' }}
+                >
+                  Admin Login
+                </span>
+              </p>
+            </div>
           </form>
         ) : (
           /* Register Form */
@@ -188,6 +200,17 @@ const AuthPage = () => {
             <p style={styles.footerText}>
               Already have an account? <span onClick={() => setIsSignUp(false)} style={styles.linkText}>Sign in</span>
             </p>
+            {/* Added: Back to Role Selection(this is for switching roles) */}
+            <div style={styles.backToRoleWrapper}>
+              <button 
+                type="button" 
+                onClick={() => navigate('/')} 
+                style={styles.backToRoleBtn}
+              >
+                ← Back to role selection
+              </button>
+            </div>
+            
           </form>
         )}
       </div>
@@ -306,7 +329,24 @@ const styles = {
     width: '100%' 
   },
   footerText: { textAlign: 'center', fontSize: '14px', color: '#666666', marginTop: '20px' },
-  linkText: { color: '#0d3b14', fontWeight: 'bold', cursor: 'pointer' }
+  linkText: { color: '#0d3b14', fontWeight: 'bold', cursor: 'pointer' },
+
+/* Back to the role*/
+  backToRoleWrapper: {
+    marginTop: '25px',
+    paddingTop: '15px',
+    borderTop: '1px solid #e0e0e0',
+    textAlign: 'center',
+    width: '100%'
+  },
+  /*admin loging */
+  bottomNavigation: {
+    marginTop: '20px',
+    paddingTop: '15px',
+    borderTop: '1px solid #e0e0e0',
+    textAlign: 'center',
+    width: '100%'
+  }
 };
 
 export default AuthPage;
