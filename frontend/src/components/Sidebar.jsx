@@ -7,6 +7,7 @@ const Sidebar = () => {
 
   const menuItems = [
     { name: 'Home', path: '/home', icon: '🏠' },
+    { name: 'Live Tracking', path: '/tracking', icon: '📍' },
     { name: 'Complaints', path: '/complaints', icon: '📋' },
     { name: 'Feedback', path: '/feedback', icon: '⭐' },
     { name: 'Collection Schedule', path: '/schedule', icon: '📅' },
