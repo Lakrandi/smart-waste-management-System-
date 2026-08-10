@@ -11,7 +11,7 @@ const server = http.createServer(app); // 3. Wrap Express app with HTTP server
 // 4. Socket.io Configuration
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173", // React Frontend URL
+    origin: "*",
     methods: ["GET", "POST"]
   }
 });

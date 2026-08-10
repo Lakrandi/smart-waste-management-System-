@@ -26,7 +26,7 @@ const RecenterMap = ({ center }) => {
 };
 
 // Socket Connection
-const socket = io('http://192.168.8.138:5000');
+const socket = io('http://localhost:5000');
 
 const LiveTracking = () => {
   // Truck Coordinates State (Default: Colombo)
