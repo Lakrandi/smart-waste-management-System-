@@ -48,6 +48,8 @@ io.on('connection', (socket) => {
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/waste', require('./routes/WasteRoutes'));
+app.use('/api/complaints', require('./routes/complaintRoutes'));
+
 
 app.get('/', (req, res) => {
   res.send('CleanTrack API is running...');
