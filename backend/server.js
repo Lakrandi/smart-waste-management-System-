@@ -53,7 +53,7 @@ app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/waste', require('./routes/WasteRoutes'));
 app.use('/api/complaints', require('./routes/complaintRoutes'));
-
+app.use('/api/schedules', require('./routes/scheduleRoutes'));
 
 app.get('/', (req, res) => {
   res.send('CleanTrack API is running...');
