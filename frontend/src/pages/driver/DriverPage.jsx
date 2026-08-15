@@ -8,6 +8,14 @@ const DriverPage = () => {
   const [isTracking, setIsTracking] = useState(false);
   const [currentCoords, setCurrentCoords] = useState(null);
 
+  const toggleTracking = () => {
+    if (isTracking) {
+      socket.emit('stopLocation');
+    }
+    setIsTracking(!isTracking);
+  };
+
+
   useEffect(() => {
     let watchId;
 
@@ -47,7 +55,7 @@ const DriverPage = () => {
       <p>Driver Status: {isTracking ? '🟢 Live Tracking ACTIVE' : '🔴 Tracking OFF'}</p>
 
       <button
-        onClick={() => setIsTracking(!isTracking)}
+        onClick={toggleTracking}
         style={{
           ...styles.button,
           backgroundColor: isTracking ? '#dc3545' : '#28a745',

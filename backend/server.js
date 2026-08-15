@@ -38,6 +38,10 @@ io.on('connection', (socket) => {
     // Broadcast updated location to all connected clients in real-time
     io.emit('locationUpdate', truckLocation);
   });
+  socket.on('stopLocation', () => {
+    console.log("Driver stopLocation received!");
+    io.emit('driverStopped');
+  });
 
   socket.on('disconnect', () => {
     console.log(`Client Disconnected: ${socket.id}`);
