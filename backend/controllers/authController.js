@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 // 1. Register Logic
 exports.registerUser = async (req, res) => {
   try {
-    const { name, email, password, role, zone } = req.body;
+    const { name, email, password, role, district } = req.body;
 
     let user = await User.findOne({ email });
     if (user) return res.status(400).json({ message: 'User already exists' });
@@ -19,7 +19,7 @@ exports.registerUser = async (req, res) => {
       email,
       password: hashedPassword,
       role: role || 'resident',
-      zone
+      district
     });
 
     await user.save();
@@ -54,7 +54,7 @@ exports.loginUser = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
-        zone: user.zone
+        district: user.district
       }
     });
   } catch (error) {
