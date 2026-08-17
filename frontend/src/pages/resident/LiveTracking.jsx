@@ -32,6 +32,7 @@ const LiveTracking = () => {
   // Truck Coordinates State (Default: Colombo)
   const [truckPosition, setTruckPosition] = useState([6.9271, 79.8612]);
   const [isConnected, setIsConnected] = useState(false);
+  const [isDriverLive, setIsDriverLive] = useState(false);
 
   useEffect(() => {
     // Socket Connection Status
@@ -43,13 +44,19 @@ const LiveTracking = () => {
       if (data && data.lat && data.lng) {
         console.log('Real-time Location Received:', data);
         setTruckPosition([data.lat, data.lng]);
+        setIsDriverLive(true);
       }
+    });
+    socket.on('driverStopped', () => {
+      console.log('Driver stopped live tracking');
+      setIsDriverLive(false);
     });
 
     return () => {
       socket.off('connect');
       socket.off('disconnect');
       socket.off('locationUpdate');
+      socket.off('driverStopped');
     };
   }, []);
 
@@ -87,8 +94,8 @@ const LiveTracking = () => {
 
               <div style={styles.detailRow}>
                 <span style={styles.label}>Status</span>
-                <span style={isConnected ? styles.activeBadge : styles.inactiveBadge}>
-                  {isConnected ? 'On Route (Live)' : 'Disconnected'}
+                <span style={isConnected && isDriverLive ? styles.activeBadge : styles.inactiveBadge}>
+                  {isConnected && isDriverLive ? 'On Route (Live)' : 'Disconnected'}
                 </span>
               </div>
 

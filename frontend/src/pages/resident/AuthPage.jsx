@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
+const SRI_LANKA_DISTRICTS = [
+  "Ampara", "Anuradhapura", "Badulla", "Batticaloa", "Colombo", "Galle", 
+  "Gampaha", "Hambantota", "Jaffna", "Kalutara", "Kandy", "Kegalle", 
+  "Kilinochchi", "Kurunegala", "Mannar", "Matale", "Matara", "Monaragala", 
+  "Mullaitivu", "Nuwara Eliya", "Polonnaruwa", "Puttalam", "Ratnapura", 
+  "Trincomalee", "Vavuniya"
+];
 
 const AuthPage = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -7,10 +16,77 @@ const AuthPage = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
 
-  const handleAuth = (e) => {
-    e.preventDefault();
-    navigate('/home');  
+  // Form Data and Alert States
+  const [formData, setFormData] = useState({
+  name: '',
+  email: '',
+  district: '',
+  password: '',
+  confirmPassword: ''
+});
+
+const [error, setError] = useState('');
+const [successMessage, setSuccessMessage] = useState('');
+
+// Handle Input Changes
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+
+  // Handle Register & Login Submit
+  const handleAuth = async (e) => {
+    e.preventDefault();
+    setError('');
+    setSuccessMessage('');
+
+    if (isSignUp) {
+      // ---------------- REGISTER LOGIC ----------------
+      if (formData.password !== formData.confirmPassword) {
+        setError('Passwords do not match!');
+        return;
+      }
+
+      try {
+        await axios.post('http://localhost:5000/api/auth/register', {
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          role: 'resident',
+          district: formData.district
+        });
+
+        setSuccessMessage('Account created successfully! Please sign in.');
+        setIsSignUp(false); // Switch back to Sign In
+      } catch (err) {
+        setError(err.response?.data?.message || 'Registration failed. Try again.');
+      }
+    } else {
+      // ---------------- LOGIN LOGIC ----------------
+      try {
+        const res = await axios.post('http://localhost:5000/api/auth/login', {
+          email: formData.email,
+          password: formData.password
+        });
+
+        // Save Token & User to LocalStorage
+        localStorage.setItem('token', res.data.token);
+        localStorage.setItem('user', JSON.stringify(res.data.user));
+
+        // Role-Based Navigation
+        const role = res.data.user?.role;
+        if (role === 'admin') {
+          navigate('/admin-dashboard');
+        } else if (role === 'driver') {
+          navigate('/driver-dashboard');
+        } else {
+          navigate('/home');
+        }
+      } catch (err) {
+        setError(err.response?.data?.message || 'Invalid email or password.');
+      }
+    }
+  };
+
 
   return (
     <div style={styles.container}>
@@ -84,6 +160,12 @@ const AuthPage = () => {
           </button>
         </div>
 
+        {error && <p style={{ color: 'red', fontSize: '14px', marginBottom: '10px' }}>{error}</p>}
+        {successMessage && <p style={{ color: 'green', fontSize: '14px', marginBottom: '10px' }}>{successMessage}</p>}
+
+      
+
+
         {!isSignUp ? (
           /* Sign In Form */
           <form onSubmit={handleAuth} style={styles.form}>
@@ -97,6 +179,9 @@ const AuthPage = () => {
             <div style={styles.passwordWrapper}>
               <input 
                 type={showPassword ? "text" : "password"} 
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
                 placeholder="Enter your password" 
                 style={styles.passwordInput} 
                 required 
@@ -141,22 +226,49 @@ const AuthPage = () => {
             <p style={styles.formSubtitle}>Register as a SriLankan resident to get started.</p>
 
             <label style={styles.label}>Full Name</label>
-            <input type="text" placeholder="e.g. James Okafor" style={styles.input} required />
+            <input 
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            placeholder="e.g. James Okafor"
+            style={styles.input} 
+            required />
 
             <label style={styles.label}>Email Address</label>
-            <input type="email" placeholder="you@example.com" style={styles.input} required />
+            <input 
+            type="email" 
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="you@example.com" 
+            style={styles.input} 
+            required />
 
-            <label style={styles.label}>Home Zone</label>
-            <select style={styles.selectInput} required>
-              <option value="">— Select your zone —</option>
-              <option value="Zone 1">Zone 1 - Colombo</option>
-              <option value="Zone 4">Zone 4 - Anuradhapura</option>
+          
+          
+
+            <label style={styles.label}>District</label>
+            <select 
+              name="district"
+              value={formData.district}
+              onChange={handleChange}
+              style={styles.selectInput} 
+              required
+            >
+              <option value="">— Select your district —</option>
+              {SRI_LANKA_DISTRICTS.map((district, idx) => (
+                <option key={idx} value={district}>{district}</option>
+              ))}
             </select>
 
             <label style={styles.label}>Password</label>
             <div style={styles.passwordWrapper}>
               <input 
                 type={showPassword ? "text" : "password"} 
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
                 placeholder="Min. 6 characters" 
                 style={styles.passwordInput} 
                 required 
@@ -178,6 +290,9 @@ const AuthPage = () => {
             <div style={styles.passwordWrapper}>
               <input 
                 type={showConfirmPassword ? "text" : "password"} 
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
                 placeholder="Repeat password" 
                 style={styles.passwordInput} 
                 required 

@@ -5,6 +5,7 @@ const cors = require('cors');
 require('dotenv').config();
 const connectDB = require('./config/db.js');
 
+
 const app = express();
 const server = http.createServer(app); // 3. Wrap Express app with HTTP server
 
@@ -38,6 +39,10 @@ io.on('connection', (socket) => {
     // Broadcast updated location to all connected clients in real-time
     io.emit('locationUpdate', truckLocation);
   });
+  socket.on('stopLocation', () => {
+    console.log("Driver stopLocation received!");
+    io.emit('driverStopped');
+  });
 
   socket.on('disconnect', () => {
     console.log(`Client Disconnected: ${socket.id}`);
@@ -48,6 +53,9 @@ io.on('connection', (socket) => {
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/waste', require('./routes/WasteRoutes'));
+app.use('/api/complaints', require('./routes/complaintRoutes'));
+app.use('/api/schedules', require('./routes/scheduleRoutes'));
+app.use('/api/feedback', require('./routes/feedbackRoutes'));
 
 app.get('/', (req, res) => {
   res.send('CleanTrack API is running...');
