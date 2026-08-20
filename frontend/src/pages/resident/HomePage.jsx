@@ -7,7 +7,7 @@ const HomePage = () => {
 
   const [user, setUser] = useState(null);
   useEffect(() => {
-  const storedUser = localStorage.getItem('user');
+    const storedUser = localStorage.getItem('user');
     if (storedUser) {
       try {
         setUser(JSON.parse(storedUser));
@@ -22,17 +22,21 @@ const HomePage = () => {
       <Sidebar />
       <div style={{ marginLeft: '260px', padding: '40px', flex: 1 }}>
         <h1 style={{ margin: 0, fontSize: '26px' }}> 
-        Hi, {user?.name || 'User'} 👋
+          Hi, {user?.name || 'User'} 👋
         </h1>
 
-        <p style={{ color: '#666', fontSize: '13px', marginTop: '4px',marginRight:'4px' }}>{user?.zone ? `${user.zone} · ${user.district}` : 'Zone 1 · Anuradhapura'}</p>
+        <p style={{ color: '#666', fontSize: '13px', marginTop: '4px', marginRight: '4px' }}>
+          {user?.district ? `${user.district} District` : 'Anuradhapura District'}
+        </p>
 
         {/* Top Two Cards */}
         <div style={{ display: 'flex', gap: '20px', marginTop: '30px' }}>
           {/* Card 1: Next Pickup */}
           <div style={{ ...cardStyle, flex: 1.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <span style={{ fontSize: '10px', color: '#666', letterSpacing: '0.5px' }}>NEXT PICKUP - ZONE 4</span>
+              <span style={{ fontSize: '10px', color: '#666', letterSpacing: '0.5px' }}>
+                NEXT PICKUP - {user?.district ? user.district.toUpperCase() : 'DISTRICT'}
+              </span>
               <h2 style={{ margin: '8px 0 12px 0', fontSize: '20px' }}>Thursday, 9:00 AM</h2>
               <span style={{ backgroundColor: '#aed2ae', color: '#0d3b14', padding: '5px 12px', borderRadius: '12px', fontSize: '12px', fontWeight: 'bold' }}>
                 ♻️ Recyclable Waste
