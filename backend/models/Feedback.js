@@ -14,11 +14,11 @@ const feedbackSchema = new mongoose.Schema({
   },
   comment: { 
     type: String, 
-    required: true 
+    default: '' 
   },
   serviceType: { 
     type: String, 
-    required: true 
+    default: 'General' 
   }
 }, { timestamps: true });
 

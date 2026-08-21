@@ -9,6 +9,7 @@ const AdminSidebar = () => {
     { name: 'Dashboard', path: '/admin/dashboard', icon: '📊' },
     { name: 'Complaints', path: '/admin/complaints', icon: '📋' },
     { name: 'Manage Schedule', path: '/admin/schedule', icon: '📅' },
+    { name: 'Feedbacks', path: '/admin/feedback', icon: '⭐' },
   ];
 
   return (

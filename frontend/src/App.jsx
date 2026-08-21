@@ -19,6 +19,7 @@ import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminComplaints from './pages/admin/AdminComplaints';
 import AdminSchedule from './pages/admin/AdminSchedule';
+import AdminFeedbackPage from './pages/admin/AdminFeedbackPage';
  
 // 3. Import Driver Page
 import DriverPage from './pages/driver/DriverPage';
@@ -48,6 +49,7 @@ function App() {
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin/complaints" element={<AdminComplaints />} />
         <Route path="/admin/schedule" element={<AdminSchedule />} />
+        <Route path="/admin/feedback" element={<AdminFeedbackPage />} />
 
         {/* Driver Route */}
         <Route path="/driver" element={<DriverPage />} />

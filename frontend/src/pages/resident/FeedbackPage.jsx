@@ -1,35 +1,113 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import Sidebar from "../../components/Sidebar";
 
 const FeedbackPage = () => {
-  // Ticket Feedback States
-  const [ticket1Rating, setTicket1Rating] = useState(0);
-  const [ticket1Comment, setTicket1Comment] = useState("");
+  // Dynamic Resolved Complaints State
+  const [resolvedComplaints, setResolvedComplaints] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const [ticket2Rating, setTicket2Rating] = useState(0);
-  const [ticket2Comment, setTicket2Comment] = useState("");
+  // Dynamic Ticket Feedback States: { [complaintId]: { rating: 0, comment: "" } }
+  const [ticketFeedbacks, setTicketFeedbacks] = useState({});
 
   // General Feedback States
   const [generalRating, setGeneralRating] = useState(0);
   const [generalComment, setGeneralComment] = useState("");
 
-  // Handlers
-  const handleTicketSubmit = (ticketId, rating, comment) => {
-    if (rating === 0) {
+  // Fetch logged-in user's resolved complaints on load
+  useEffect(() => {
+    fetchResolvedComplaints();
+  }, []);
+
+  const fetchResolvedComplaints = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get("http://localhost:5000/api/complaints/my", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      // Filter only 'Resolved' complaints
+      const resolved = res.data.filter(
+        (c) => c.status && c.status.toLowerCase() === "resolved"
+      );
+      setResolvedComplaints(resolved);
+    } catch (error) {
+      console.error("Error fetching resolved complaints:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handlers for Ticket Rating and Comment
+  const handleRateTicket = (id, rating) => {
+    setTicketFeedbacks((prev) => ({
+      ...prev,
+      [id]: { ...prev[id], rating },
+    }));
+  };
+
+  const handleCommentTicket = (id, comment) => {
+    setTicketFeedbacks((prev) => ({
+      ...prev,
+      [id]: { ...prev[id], comment },
+    }));
+  };
+
+  const handleTicketSubmit = async (complaintId, ticketTitle) => {
+    const feedbackData = ticketFeedbacks[complaintId];
+    if (!feedbackData || !feedbackData.rating || feedbackData.rating === 0) {
       alert("Please select a star rating first.");
       return;
     }
-    console.log(`Submitted for ${ticketId}:`, { rating, comment });
-    alert(`Feedback for ${ticketId} submitted!`);
+
+    try {
+      const token = localStorage.getItem("token");
+      await axios.post(
+        "http://localhost:5000/api/feedback",
+        {
+          complaintId,
+          rating: feedbackData.rating,
+          comment: feedbackData.comment || "",
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      alert(`Feedback for ${ticketTitle} submitted successfully!`);
+    } catch (error) {
+      console.error("Error submitting ticket feedback:", error);
+      alert("Failed to submit ticket feedback.");
+    }
   };
 
-  const handleGeneralSubmit = () => {
+  const handleGeneralSubmit = async () => {
     if (generalRating === 0) {
       alert("Please select an overall experience rating.");
       return;
     }
-    console.log("Submitted General Feedback:", { rating: generalRating, comment: generalComment });
-    alert("General feedback submitted!");
+
+    try {
+      const token = localStorage.getItem("token");
+      await axios.post(
+        "http://localhost:5000/api/feedback",
+        {
+          rating: generalRating,
+          comment: generalComment,
+          type: "general",
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      alert("General feedback submitted!");
+      setGeneralRating(0);
+      setGeneralComment("");
+    } catch (error) {
+      console.error("Error submitting general feedback:", error);
+      alert("Failed to submit general feedback.");
+    }
   };
 
   // 5-Star Interactive Rating Component
@@ -69,43 +147,44 @@ const FeedbackPage = () => {
           {/* Section 1: Resolved Complaints */}
           <h4 style={styles.sectionHeader}>RATE A RESOLVED COMPLAINT</h4>
 
-          {/* Ticket 1 Card */}
-          <div style={styles.card}>
-            <h4 style={styles.cardTitle}>TICKET #A-231 · Overflowing bin</h4>
-            <StarRating rating={ticket1Rating} onRate={setTicket1Rating} />
-            <input
-              type="text"
-              placeholder="How was it handled...?"
-              value={ticket1Comment}
-              onChange={(e) => setTicket1Comment(e.target.value)}
-              style={styles.input}
-            />
-            <button
-              onClick={() => handleTicketSubmit("Ticket #A-231", ticket1Rating, ticket1Comment)}
-              style={styles.smallButton}
-            >
-              SUBMIT
-            </button>
-          </div>
+          {loading ? (
+            <p style={{ fontSize: "13px", color: "#666" }}>Loading resolved complaints...</p>
+          ) : resolvedComplaints.length === 0 ? (
+            <div style={styles.card}>
+              <p style={{ fontSize: "13px", color: "#555", margin: 0, fontStyle: "italic" }}>
+                No resolved complaints available to rate yet. Once an admin resolves your submitted complaints, they will appear here.
+              </p>
+            </div>
+          ) : (
+            resolvedComplaints.map((item) => {
+              const ticketTitle = `TICKET #${item._id.substring(item._id.length - 6).toUpperCase()} · ${item.issueType}`;
+              const currentRating = ticketFeedbacks[item._id]?.rating || 0;
+              const currentComment = ticketFeedbacks[item._id]?.comment || "";
 
-          {/* Ticket 2 Card */}
-          <div style={styles.card}>
-            <h4 style={styles.cardTitle}>TICKET #A-245 · Illegal dumping</h4>
-            <StarRating rating={ticket2Rating} onRate={setTicket2Rating} />
-            <input
-              type="text"
-              placeholder="How was it handled...?"
-              value={ticket2Comment}
-              onChange={(e) => setTicket2Comment(e.target.value)}
-              style={styles.input}
-            />
-            <button
-              onClick={() => handleTicketSubmit("Ticket #A-245", ticket2Rating, ticket2Comment)}
-              style={styles.smallButton}
-            >
-              SUBMIT
-            </button>
-          </div>
+              return (
+                <div key={item._id} style={styles.card}>
+                  <h4 style={styles.cardTitle}>{ticketTitle}</h4>
+                  <StarRating
+                    rating={currentRating}
+                    onRate={(rating) => handleRateTicket(item._id, rating)}
+                  />
+                  <input
+                    type="text"
+                    placeholder="How was it handled...?"
+                    value={currentComment}
+                    onChange={(e) => handleCommentTicket(item._id, e.target.value)}
+                    style={styles.input}
+                  />
+                  <button
+                    onClick={() => handleTicketSubmit(item._id, ticketTitle)}
+                    style={styles.smallButton}
+                  >
+                    SUBMIT
+                  </button>
+                </div>
+              );
+            })
+          )}
 
           {/* Section 2: General Feedback */}
           <h4 style={{ ...styles.sectionHeader, marginTop: "35px" }}>GENERAL FEEDBACK</h4>
@@ -141,7 +220,7 @@ const styles = {
     fontFamily: "Arial, sans-serif",
   },
   content: {
-    marginLeft: "260px", // Accommodate fixed sidebar
+    marginLeft: "260px",
     flex: 1,
     padding: "35px 50px",
     display: "flex",
@@ -150,7 +229,7 @@ const styles = {
   },
   innerContainer: {
     width: "100%",
-    maxWidth: "680px", // Leaves space on the right side
+    maxWidth: "680px",
     display: "flex",
     flexDirection: "column",
     alignItems: "stretch",
@@ -184,7 +263,7 @@ const styles = {
     marginBottom: "20px",
     display: "flex",
     flexDirection: "column",
-    alignItems: "flex-start", // Left aligns all children elements
+    alignItems: "flex-start",
     textAlign: "left",
   },
   cardTitle: {
