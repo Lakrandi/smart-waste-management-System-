@@ -9,11 +9,13 @@ const {
 const { protect } = require('../middleware/authMiddleware');
 
 // Resident Routes
-router.post('/create', protect, createComplaint);
-router.get('/my-complaints', protect, getMyComplaints);
+router.post('/', protect, createComplaint);
+router.get('/my', protect, getMyComplaints);
 
 // Admin Routes
 router.get('/all', protect, getAllComplaints);
+router.get('/', protect, getAllComplaints);
 router.put('/update/:id', protect, updateComplaintStatus);
+router.put('/:id', protect, updateComplaintStatus);
 
 module.exports = router;

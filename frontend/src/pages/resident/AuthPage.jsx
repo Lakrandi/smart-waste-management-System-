@@ -18,17 +18,17 @@ const AuthPage = () => {
 
   // Form Data and Alert States
   const [formData, setFormData] = useState({
-  name: '',
-  email: '',
-  district: '',
-  password: '',
-  confirmPassword: ''
-});
+    name: '',
+    email: '',
+    district: '',
+    password: '',
+    confirmPassword: ''
+  });
 
-const [error, setError] = useState('');
-const [successMessage, setSuccessMessage] = useState('');
+  const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
-// Handle Input Changes
+  // Handle Input Changes
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -47,7 +47,7 @@ const [successMessage, setSuccessMessage] = useState('');
       }
 
       try {
-        await axios.post('http://localhost:5000/api/auth/register', {
+        const res = await axios.post('http://localhost:5000/api/auth/register', {
           name: formData.name,
           email: formData.email,
           password: formData.password,
@@ -55,8 +55,12 @@ const [successMessage, setSuccessMessage] = useState('');
           district: formData.district
         });
 
-        setSuccessMessage('Account created successfully! Please sign in.');
-        setIsSignUp(false); // Switch back to Sign In
+        // Save token and user details to localStorage on registration (Auto Login)
+        localStorage.setItem('token', res.data.token);
+        localStorage.setItem('user', JSON.stringify(res.data.user));
+
+        // Direct navigation to Resident Home
+        navigate('/home');
       } catch (err) {
         setError(err.response?.data?.message || 'Registration failed. Try again.');
       }
@@ -87,7 +91,6 @@ const [successMessage, setSuccessMessage] = useState('');
     }
   };
 
-
   return (
     <div style={styles.container}>
       {/* Left Green Banner Panel */}
@@ -109,7 +112,6 @@ const [successMessage, setSuccessMessage] = useState('');
             Manage your household waste collection, submit complaints, and stay updated with your local council services across Sri Lanka.
           </p>
 
-          {/* Recycle Emoji */}
           <div style={styles.iconBox}>♻️</div>
         </div>
 
@@ -163,9 +165,6 @@ const [successMessage, setSuccessMessage] = useState('');
         {error && <p style={{ color: 'red', fontSize: '14px', marginBottom: '10px' }}>{error}</p>}
         {successMessage && <p style={{ color: 'green', fontSize: '14px', marginBottom: '10px' }}>{successMessage}</p>}
 
-      
-
-
         {!isSignUp ? (
           /* Sign In Form */
           <form onSubmit={handleAuth} style={styles.form}>
@@ -173,7 +172,15 @@ const [successMessage, setSuccessMessage] = useState('');
             <p style={styles.formSubtitle}>Sign in to access your Smart Waste resident account.</p>
 
             <label style={styles.label}>Email Address</label>
-            <input type="email" placeholder="you@example.com" style={styles.input} required />
+            <input 
+              type="email" 
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="you@example.com" 
+              style={styles.input} 
+              required 
+            />
 
             <label style={styles.label}>Password</label>
             <div style={styles.passwordWrapper}>
@@ -192,10 +199,8 @@ const [successMessage, setSuccessMessage] = useState('');
                 style={styles.eyeBtn}
               >
                 {showPassword ? (
-                  /* Password visible -> Open Eye Icon */
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                 ) : (
-                  /* Password hidden -> Closed/Slashed Eye Icon */
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
                 )}
               </button>
@@ -206,13 +211,12 @@ const [successMessage, setSuccessMessage] = useState('');
             <p style={styles.footerText}>
               Don't have an account? <span onClick={() => setIsSignUp(true)} style={styles.linkText}>Create one</span>
             </p>
-            {/* Admin direct link */}
             <div style={{ marginTop: '20px', paddingTop: '15px', borderTop: '1px solid #e0e0e0', textAlign: 'center' }}> 
               <p style={{ margin: 0, fontSize: '13px', color: '#666666' }}>
                 Are you a Council Officer or Admin?{' '}
                 <span
-                onClick={() => navigate('/admin/login')}
-                style={{ color: '#0d3b14', fontWeight: 'bold', cursor: 'pointer', textDecoration: 'underline' }}
+                  onClick={() => navigate('/admin/login')}
+                  style={{ color: '#0d3b14', fontWeight: 'bold', cursor: 'pointer', textDecoration: 'underline' }}
                 >
                   Admin Login
                 </span>
@@ -227,26 +231,25 @@ const [successMessage, setSuccessMessage] = useState('');
 
             <label style={styles.label}>Full Name</label>
             <input 
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            placeholder="e.g. James Okafor"
-            style={styles.input} 
-            required />
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="e.g. James Okafor"
+              style={styles.input} 
+              required 
+            />
 
             <label style={styles.label}>Email Address</label>
             <input 
-            type="email" 
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="you@example.com" 
-            style={styles.input} 
-            required />
-
-          
-          
+              type="email" 
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="you@example.com" 
+              style={styles.input} 
+              required 
+            />
 
             <label style={styles.label}>District</label>
             <select 
@@ -315,7 +318,6 @@ const [successMessage, setSuccessMessage] = useState('');
             <p style={styles.footerText}>
               Already have an account? <span onClick={() => setIsSignUp(false)} style={styles.linkText}>Sign in</span>
             </p>
-            {/* Added: Back to Role Selection(this is for switching roles) */}
             <div style={styles.backToRoleWrapper}>
               <button 
                 type="button" 
@@ -325,7 +327,6 @@ const [successMessage, setSuccessMessage] = useState('');
                 ← Back to role selection
               </button>
             </div>
-            
           </form>
         )}
       </div>
@@ -338,130 +339,32 @@ const styles = {
   leftPanel: { width: '38%', backgroundColor: '#0d3b14', color: '#fff', padding: '50px 40px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' },
   leftTitle: { fontSize: '36px', fontWeight: 'bold', margin: '0 0 20px 0', color: '#ffffff', lineHeight: '1.2', textAlign: 'left' },
   leftDesc: { color: '#c3d8c3', fontSize: '14px', lineHeight: '1.6', textAlign: 'left' },
-  
   iconBox: { fontSize: '75px', textAlign: 'center', margin: '50px 0 30px 0' },
-  
   featureList: { fontSize: '14px', color: '#dce5dc', display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '10px' },
   featureItem: { display: 'flex', alignItems: 'flex-start', gap: '10px', textAlign: 'left' },
   featureIcon: { fontSize: '16px', flexShrink: 0, lineHeight: '1.4' },
   featureText: { textAlign: 'left', lineHeight: '1.4' },
-  
   rightPanel: { flex: 1, backgroundColor: '#ffffff', padding: '50px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' },
   tabContainer: { display: 'flex', backgroundColor: '#e2e8e2', borderRadius: '12px', padding: '4px', width: '400px', marginBottom: '35px' },
   tabBtn: { flex: 1, border: 'none', padding: '12px', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', transition: 'all 0.2s ease' },
-  
-  form: { 
-    width: '400px', 
-    display: 'flex', 
-    flexDirection: 'column', 
-    alignItems: 'stretch', 
-    textAlign: 'left' 
-  },
+  form: { width: '400px', display: 'flex', flexDirection: 'column', alignItems: 'stretch', textAlign: 'left' },
   formTitle: { margin: '0 0 6px 0', fontSize: '28px', color: '#111111', fontWeight: 'bold', textAlign: 'left' },
   formSubtitle: { color: '#666666', fontSize: '14px', marginBottom: '24px', textAlign: 'left' },
-  label: { 
-    fontSize: '13px', 
-    fontWeight: 'bold', 
-    margin: '12px 0 6px 0', 
-    color: '#111111', 
-    textAlign: 'left', 
-    display: 'block' 
-  },
-  input: { 
-    padding: '14px', 
-    borderRadius: '12px', 
-    border: '1px solid #c0ccc0', 
-    backgroundColor: '#e3ebe3', 
-    marginBottom: '4px', 
-    outline: 'none', 
-    fontSize: '14px', 
-    color: '#333333',
-    width: '100%',
-    boxSizing: 'border-box'
-  },
-  
+  label: { fontSize: '13px', fontWeight: 'bold', margin: '12px 0 6px 0', color: '#111111', textAlign: 'left', display: 'block' },
+  input: { padding: '14px', borderRadius: '12px', border: '1px solid #c0ccc0', backgroundColor: '#e3ebe3', marginBottom: '4px', outline: 'none', fontSize: '14px', color: '#333333', width: '100%', boxSizing: 'border-box' },
   selectInput: {
-    padding: '14px 40px 14px 14px',
-    borderRadius: '12px',
-    border: '1px solid #c0ccc0',
-    backgroundColor: '#e3ebe3',
-    marginBottom: '4px',
-    outline: 'none',
-    fontSize: '14px',
-    color: '#333333',
-    width: '100%',
-    boxSizing: 'border-box',
-    appearance: 'none',
-    WebkitAppearance: 'none',
-    MozAppearance: 'none',
+    padding: '14px 40px 14px 14px', borderRadius: '12px', border: '1px solid #c0ccc0', backgroundColor: '#e3ebe3', marginBottom: '4px', outline: 'none', fontSize: '14px', color: '#333333', width: '100%', boxSizing: 'border-box', appearance: 'none', WebkitAppearance: 'none', MozAppearance: 'none',
     backgroundImage: `url("data:image/svg+xml;utf8,<svg fill='%23333333' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>")`,
-    backgroundRepeat: 'no-repeat',
-    backgroundPosition: 'right 16px center',
-    textAlign: 'center',
-    textAlignLast: 'center',
-    cursor: 'pointer'
+    backgroundRepeat: 'no-repeat', backgroundPosition: 'right 16px center', textAlign: 'center', textAlignLast: 'center', cursor: 'pointer'
   },
-  
-  passwordWrapper: {
-    position: 'relative',
-    width: '100%',
-    marginBottom: '4px'
-  },
-  passwordInput: {
-    padding: '14px 45px 14px 14px',
-    borderRadius: '12px',
-    border: '1px solid #c0ccc0',
-    backgroundColor: '#e3ebe3',
-    outline: 'none',
-    fontSize: '14px',
-    color: '#333333',
-    width: '100%',
-    boxSizing: 'border-box'
-  },
-  eyeBtn: {
-    position: 'absolute',
-    right: '14px',
-    top: '50%',
-    transform: 'translateY(-50%)',
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    padding: 0
-  },
-
-  submitBtn: { 
-    backgroundColor: '#0d3b14', 
-    color: '#ffffff', 
-    border: 'none', 
-    padding: '16px', 
-    borderRadius: '12px', 
-    fontWeight: 'bold', 
-    fontSize: '16px', 
-    cursor: 'pointer', 
-    marginTop: '25px', 
-    width: '100%' 
-  },
+  passwordWrapper: { position: 'relative', width: '100%', marginBottom: '4px' },
+  passwordInput: { padding: '14px 45px 14px 14px', borderRadius: '12px', border: '1px solid #c0ccc0', backgroundColor: '#e3ebe3', outline: 'none', fontSize: '14px', color: '#333333', width: '100%', boxSizing: 'border-box' },
+  eyeBtn: { position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 0 },
+  submitBtn: { backgroundColor: '#0d3b14', color: '#ffffff', border: 'none', padding: '16px', borderRadius: '12px', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer', marginTop: '25px', width: '100%' },
   footerText: { textAlign: 'center', fontSize: '14px', color: '#666666', marginTop: '20px' },
   linkText: { color: '#0d3b14', fontWeight: 'bold', cursor: 'pointer' },
-
-/* Back to the role*/
-  backToRoleWrapper: {
-    marginTop: '25px',
-    paddingTop: '15px',
-    borderTop: '1px solid #e0e0e0',
-    textAlign: 'center',
-    width: '100%'
-  },
-  /*admin loging */
-  bottomNavigation: {
-    marginTop: '20px',
-    paddingTop: '15px',
-    borderTop: '1px solid #e0e0e0',
-    textAlign: 'center',
-    width: '100%'
-  }
+  backToRoleWrapper: { marginTop: '25px', paddingTop: '15px', borderTop: '1px solid #e0e0e0', textAlign: 'center', width: '100%' },
+  backToRoleBtn: { background: 'none', border: 'none', color: '#666666', cursor: 'pointer', fontSize: '13px' }
 };
 
 export default AuthPage;

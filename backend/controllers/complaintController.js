@@ -3,12 +3,22 @@ const Complaint = require('../models/Complaint');
 // 1. Create a new complaint (Resident)
 exports.createComplaint = async (req, res) => {
   try {
-    const { title, description } = req.body;
+    const { title, description, district } = req.body;
+    
+    // If district is not provided in the request body, use the district from the logged-in user's profile
+    const userDistrict = district || req.user?.district;
+
+    if (!userDistrict) {
+      return res.status(400).json({ message: "District is required to submit a complaint" });
+    }
+
     const newComplaint = new Complaint({
       user: req.user._id,
       title,
-      description
+      description,
+      district: userDistrict
     });
+
     await newComplaint.save();
     res.status(201).json({ message: "Complaint submitted successfully", data: newComplaint });
   } catch (error) {
@@ -26,10 +36,21 @@ exports.getMyComplaints = async (req, res) => {
   }
 };
 
-// 3. Get all complaints (Admin View)
+// 3. Get all complaints with District Filtering (Admin View)
 exports.getAllComplaints = async (req, res) => {
   try {
-    const complaints = await Complaint.find().populate('user', 'name email').sort({ createdAt: -1 });
+    const { district } = req.query;
+    let query = {};
+
+    // If a district is provided in the query, filter complaints by that district
+    if (district) {
+      query.district = district;
+    }
+
+    const complaints = await Complaint.find(query)
+      .populate('user', 'name email district')
+      .sort({ createdAt: -1 });
+
     res.json(complaints);
   } catch (error) {
     res.status(500).json({ message: error.message });
