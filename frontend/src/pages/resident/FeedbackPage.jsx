@@ -3,18 +3,13 @@ import axios from "axios";
 import Sidebar from "../../components/Sidebar";
 
 const FeedbackPage = () => {
-  // Dynamic Resolved Complaints State
   const [resolvedComplaints, setResolvedComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Dynamic Ticket Feedback States: { [complaintId]: { rating: 0, comment: "" } }
   const [ticketFeedbacks, setTicketFeedbacks] = useState({});
-
-  // General Feedback States
   const [generalRating, setGeneralRating] = useState(0);
   const [generalComment, setGeneralComment] = useState("");
 
-  // Fetch logged-in user's resolved complaints on load
   useEffect(() => {
     fetchResolvedComplaints();
   }, []);
@@ -26,9 +21,11 @@ const FeedbackPage = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      // Filter only 'Resolved' complaints
-      const resolved = res.data.filter(
-        (c) => c.status && c.status.toLowerCase() === "resolved"
+      const complaintsList = Array.isArray(res.data) ? res.data : (res.data.data || []);
+
+      // Filter resolved AND not yet rated complaints
+      const resolved = complaintsList.filter(
+        (c) => c.status && c.status.toLowerCase() === "resolved" && !c.isRated
       );
       setResolvedComplaints(resolved);
     } catch (error) {
@@ -38,7 +35,6 @@ const FeedbackPage = () => {
     }
   };
 
-  // Handlers for Ticket Rating and Comment
   const handleRateTicket = (id, rating) => {
     setTicketFeedbacks((prev) => ({
       ...prev,
@@ -68,6 +64,7 @@ const FeedbackPage = () => {
           complaintId,
           rating: feedbackData.rating,
           comment: feedbackData.comment || "",
+          type: "complaint"
         },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -75,6 +72,8 @@ const FeedbackPage = () => {
       );
 
       alert(`Feedback for ${ticketTitle} submitted successfully!`);
+
+      setResolvedComplaints((prev) => prev.filter((item) => item._id !== complaintId));
     } catch (error) {
       console.error("Error submitting ticket feedback:", error);
       alert("Failed to submit ticket feedback.");
@@ -101,7 +100,7 @@ const FeedbackPage = () => {
         }
       );
 
-      alert("General feedback submitted!");
+      alert("General feedback submitted successfully!");
       setGeneralRating(0);
       setGeneralComment("");
     } catch (error) {
@@ -110,7 +109,6 @@ const FeedbackPage = () => {
     }
   };
 
-  // 5-Star Interactive Rating Component
   const StarRating = ({ rating, onRate }) => (
     <div style={styles.starContainer}>
       {[1, 2, 3, 4, 5].map((star) => (
@@ -133,10 +131,8 @@ const FeedbackPage = () => {
 
   return (
     <div style={styles.container}>
-      {/* Fixed Left Sidebar */}
       <Sidebar />
 
-      {/* Main Page Area with Space on the Right */}
       <div style={styles.content}>
         <div style={styles.innerContainer}>
           <h1 style={styles.title}>Feedback</h1>
@@ -144,7 +140,6 @@ const FeedbackPage = () => {
             Rate how resolved complaints were handled, or leave general feedback about the service.
           </p>
 
-          {/* Section 1: Resolved Complaints */}
           <h4 style={styles.sectionHeader}>RATE A RESOLVED COMPLAINT</h4>
 
           {loading ? (
@@ -157,7 +152,8 @@ const FeedbackPage = () => {
             </div>
           ) : (
             resolvedComplaints.map((item) => {
-              const ticketTitle = `TICKET #${item._id.substring(item._id.length - 6).toUpperCase()} · ${item.issueType}`;
+              const titleText = item.issueType || item.title || item.category || item.wasteType || "General Issue";
+              const ticketTitle = `TICKET #${item._id ? item._id.substring(item._id.length - 6).toUpperCase() : "N/A"} · ${titleText}`;
               const currentRating = ticketFeedbacks[item._id]?.rating || 0;
               const currentComment = ticketFeedbacks[item._id]?.comment || "";
 
@@ -186,7 +182,6 @@ const FeedbackPage = () => {
             })
           )}
 
-          {/* Section 2: General Feedback */}
           <h4 style={{ ...styles.sectionHeader, marginTop: "35px" }}>GENERAL FEEDBACK</h4>
 
           <div style={styles.card}>

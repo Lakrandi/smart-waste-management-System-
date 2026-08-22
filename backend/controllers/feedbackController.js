@@ -1,4 +1,5 @@
 const Feedback = require('../models/Feedback');
+const Complaint = require('../models/Complaint');
 
 // 1. Submit new feedback
 exports.createFeedback = async (req, res) => {
@@ -18,6 +19,12 @@ exports.createFeedback = async (req, res) => {
     });
 
     await newFeedback.save();
+
+    // If the feedback is associated with a complaint, mark that complaint as rated
+    if (complaintId) {
+      await Complaint.findByIdAndUpdate(complaintId, { isRated: true });
+    }
+
     res.status(201).json({ message: "Feedback submitted successfully", data: newFeedback });
   } catch (error) {
     console.error("Feedback creation error:", error);

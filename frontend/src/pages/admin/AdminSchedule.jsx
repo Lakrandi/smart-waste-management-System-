@@ -23,7 +23,7 @@ const AdminSchedule = () => {
     area: ''
   });
 
-  // API Base URL 
+  // API Base URL
   const API_URL = 'http://localhost:5000/api/schedules';
 
   // 1. Fetch all schedules from the backend when the component mounts
@@ -57,18 +57,27 @@ const AdminSchedule = () => {
 
     try {
       const token = localStorage.getItem('token');
-      
+
+      // Extract day name from selected date to satisfy backend schema
+      const selectedDate = new Date(formData.date);
+      const dayName = selectedDate.toLocaleDateString('en-US', { weekday: 'long' });
+
+      const payload = {
+        ...formData,
+        day: dayName
+      };
+
       const res = await axios.post(
-        API_URL, 
-        formData,
+        API_URL,
+        payload,
         {
           headers: { Authorization: `Bearer ${token}` }
         }
       );
 
       const newSchedule = res.data.data || res.data;
-      setSchedules([newSchedule, ...schedules]); // Update state
-      
+      setSchedules([newSchedule, ...schedules]);
+
       // Reset form
       setFormData({
         date: '',
@@ -126,7 +135,7 @@ const AdminSchedule = () => {
         </h1>
 
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', alignItems: 'flex-start' }}>
-          
+
           {/* Light Green Form Card */}
           <div style={{
             flex: '1 1 300px',

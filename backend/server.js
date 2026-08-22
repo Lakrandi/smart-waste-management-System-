@@ -55,6 +55,7 @@ app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/waste', require('./routes/WasteRoutes'));
 app.use('/api/complaints', require('./routes/complaintRoutes'));
 app.use('/api/schedules', require('./routes/scheduleRoutes'));
+app.use('/api/schedule', require('./routes/scheduleRoutes'));
 app.use('/api/feedback', require('./routes/feedbackRoutes'));
 
 app.get('/', (req, res) => {

@@ -1,35 +1,14 @@
 const Schedule = require('../models/Schedule');
 
-// 1. Create a new schedule (Admin)
-exports.createSchedule = async (req, res) => {
-  try {
-    const { district, area, date, timeSlot, wasteType, driverName } = req.body;
-
-    if (!district) {
-      return res.status(400).json({ message: "District is required" });
-    }
-
-    const newSchedule = new Schedule({
-      district,
-      area,
-      date,
-      timeSlot,
-      wasteType,
-      driverName
-    });
-
-    await newSchedule.save();
-    res.status(201).json({ message: "Schedule created successfully", data: newSchedule });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-// 2. Get all schedules (Residents & Admin)
-exports.getAllSchedules = async (req, res) => {
+// 1. Get schedules (supports district filtering)
+exports.getSchedules = async (req, res) => {
   try {
     const { district } = req.query;
-    const filter = district ? { district } : {};
+    let filter = {};
+
+    if (district) {
+      filter.district = { $regex: new RegExp(district, 'i') };
+    }
 
     const schedules = await Schedule.find(filter).sort({ createdAt: -1 });
     res.json(schedules);
@@ -38,37 +17,35 @@ exports.getAllSchedules = async (req, res) => {
   }
 };
 
-// 3. Update schedule status / details (Admin)
-exports.updateScheduleStatus = async (req, res) => {
+// 2. Add new schedule
+exports.addSchedule = async (req, res) => {
   try {
-    const { status, district, area, date, timeSlot, wasteType, driverName } = req.body;
-    const schedule = await Schedule.findById(req.params.id);
+    const { district, area, date, timeSlot, wasteType, day, driverName } = req.body;
 
-    if (!schedule) {
-      return res.status(404).json({ message: "Schedule not found" });
-    }
+    const calculatedDay = day || (date ? new Date(date).toLocaleDateString('en-US', { weekday: 'long' }) : 'Monday');
 
-    schedule.status = status || schedule.status;
-    schedule.district = district || schedule.district;
-    schedule.area = area || schedule.area;
-    schedule.date = date || schedule.date;
-    schedule.timeSlot = timeSlot || schedule.timeSlot;
-    schedule.wasteType = wasteType || schedule.wasteType;
-    schedule.driverName = driverName || schedule.driverName;
+    const newSchedule = new Schedule({
+      district,
+      area,
+      date,
+      day: calculatedDay,
+      timeSlot,
+      wasteType,
+      driverName
+    });
 
-    await schedule.save();
-
-    res.json({ message: "Schedule updated successfully", data: schedule });
+    await newSchedule.save();
+    res.status(201).json(newSchedule);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// 4. Delete schedule (Admin)
+// 3. Delete schedule
 exports.deleteSchedule = async (req, res) => {
   try {
     await Schedule.findByIdAndDelete(req.params.id);
-    res.json({ message: "Schedule deleted successfully" });
+    res.json({ message: 'Schedule deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

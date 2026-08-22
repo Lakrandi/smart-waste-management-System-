@@ -1,16 +1,21 @@
 const express = require('express');
 const router = express.Router();
 const { 
-  createSchedule, 
-  getAllSchedules, 
-  updateScheduleStatus, 
+  getSchedules, 
+  addSchedule, 
   deleteSchedule 
 } = require('../controllers/scheduleController');
-const { protect } = require('../middleware/authMiddleware');
 
-router.post('/create', protect, createSchedule);
-router.get('/all', protect, getAllSchedules);
-router.put('/update/:id', protect, updateScheduleStatus);
-router.delete('/delete/:id', protect, deleteSchedule);
+// Get Schedules
+router.get('/', getSchedules);
+router.get('/all', getSchedules);
+
+// Add Schedule
+router.post('/', addSchedule);
+router.post('/create', addSchedule);
+
+// Delete Schedule
+router.delete('/:id', deleteSchedule);
+router.delete('/delete/:id', deleteSchedule);
 
 module.exports = router;

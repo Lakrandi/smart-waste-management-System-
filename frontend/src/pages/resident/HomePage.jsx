@@ -1,12 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../../components/Sidebar';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const HomePage = () => {
   const navigate = useNavigate();
 
   const [user, setUser] = useState(null);
+  const [openCount, setOpenCount] = useState(0);
+  const [resolvedCount, setResolvedCount] = useState(0);
+  const [nextPickup, setNextPickup] = useState({
+    day: 'Thursday',
+    time: '9:00 AM',
+    type: 'Recyclable Waste',
+    ticket: '#A-118'
+  });
+
   useEffect(() => {
+    // 1. Retrieve logged-in user data from LocalStorage
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       try {
@@ -15,7 +26,44 @@ const HomePage = () => {
         console.error("Error parsing user data from localStorage", err);
       }
     }
+
+    // 2. Fetch dashboard stats and schedule from backend
+    fetchData();
   }, []);
+
+  const fetchData = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const config = {
+        headers: { Authorization: `Bearer ${token}` }
+      };
+
+      // Fetch user complaints
+      const complaintRes = await axios.get('http://localhost:5000/api/complaints/my', config);
+      const complaints = complaintRes.data || [];
+
+      // Calculate open and resolved complaint counts
+      const open = complaints.filter(c => c.status === 'Pending' || c.status === 'In Progress' || c.status === 'Open').length;
+      const resolved = complaints.filter(c => c.status === 'Resolved').length;
+
+      setOpenCount(open);
+      setResolvedCount(resolved);
+
+      // Fetch schedule data
+      const scheduleRes = await axios.get('http://localhost:5000/api/schedule', config);
+      if (scheduleRes.data && scheduleRes.data.length > 0) {
+        const item = scheduleRes.data[0];
+        setNextPickup({
+          day: item.day || 'Thursday',
+          time: item.time || '9:00 AM',
+          type: item.type || 'Recyclable Waste',
+          ticket: item.ticket || '#A-118'
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+    }
+  };
 
   return (
     <div style={{ display: 'flex', backgroundColor: '#f9fbf9', minHeight: '100vh', fontFamily: 'sans-serif' }}>
@@ -26,7 +74,7 @@ const HomePage = () => {
         </h1>
 
         <p style={{ color: '#666', fontSize: '13px', marginTop: '4px', marginRight: '4px' }}>
-          {user?.district ? `${user.district} District` : 'Anuradhapura District'}
+          {user?.district ? `${user.district} District` : 'Gampaha District'}
         </p>
 
         {/* Top Two Cards */}
@@ -37,14 +85,18 @@ const HomePage = () => {
               <span style={{ fontSize: '10px', color: '#666', letterSpacing: '0.5px' }}>
                 NEXT PICKUP - {user?.district ? user.district.toUpperCase() : 'DISTRICT'}
               </span>
-              <h2 style={{ margin: '8px 0 12px 0', fontSize: '20px' }}>Thursday, 9:00 AM</h2>
+              <h2 style={{ margin: '8px 0 12px 0', fontSize: '20px' }}>
+                {nextPickup.day}, {nextPickup.time}
+              </h2>
               <span style={{ backgroundColor: '#aed2ae', color: '#0d3b14', padding: '5px 12px', borderRadius: '12px', fontSize: '12px', fontWeight: 'bold' }}>
-                ♻️ Recyclable Waste
+                ♻️ {nextPickup.type}
               </span>
             </div>
             <div style={{ borderLeft: '1px solid #ccc', paddingLeft: '20px', textAlign: 'center' }}>
               <span style={{ fontSize: '10px', color: '#888' }}>TICKET</span>
-              <p style={{ margin: '5px 0 0 0', fontWeight: 'bold', fontSize: '16px' }}>#A-118</p>
+              <p style={{ margin: '5px 0 0 0', fontWeight: 'bold', fontSize: '16px' }}>
+                {nextPickup.ticket}
+              </p>
             </div>
           </div>
 
@@ -62,17 +114,19 @@ const HomePage = () => {
         {/* Bottom Three Counter Cards */}
         <div style={{ display: 'flex', gap: '20px', marginTop: '25px' }}>
           <div style={counterCard}>
-            <h1 style={{ margin: 0, fontSize: '28px' }}>1</h1>
+            <h1 style={{ margin: 0, fontSize: '28px' }}>{openCount}</h1>
             <p style={{ margin: '5px 0 0 0', fontSize: '11px', color: '#555', fontWeight: 'bold' }}>OPEN COMPLAINTS</p>
           </div>
 
           <div style={counterCard}>
-            <h1 style={{ margin: 0, fontSize: '28px' }}>2</h1>
+            <h1 style={{ margin: 0, fontSize: '28px' }}>{resolvedCount}</h1>
             <p style={{ margin: '5px 0 0 0', fontSize: '11px', color: '#555', fontWeight: 'bold' }}>RESOLVED</p>
           </div>
 
           <div style={counterCard}>
-            <h1 style={{ margin: 0, fontSize: '28px' }}>Thu</h1>
+            <h1 style={{ margin: 0, fontSize: '28px' }}>
+              {nextPickup.day ? nextPickup.day.slice(0, 3) : 'Thu'}
+            </h1>
             <p style={{ margin: '5px 0 0 0', fontSize: '11px', color: '#555', fontWeight: 'bold' }}>NEXT COLLECTION</p>
           </div>
         </div>

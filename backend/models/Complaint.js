@@ -22,6 +22,10 @@ const complaintSchema = new mongoose.Schema({
     type: String, 
     enum: ['Pending', 'In Progress', 'Resolved'], 
     default: 'Pending' 
+  },
+  isRated: {
+    type: Boolean,
+    default: false
   }
 }, { timestamps: true });
 

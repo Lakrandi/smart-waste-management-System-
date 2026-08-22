@@ -11,11 +11,9 @@ const SchedulePage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Retrieve stored user and authentication token
     const storedUser = localStorage.getItem('user');
     const token = localStorage.getItem('token');
 
-    // Redirect to login if user or token is missing
     if (!storedUser || !token) {
       navigate('/');
       return;
@@ -26,7 +24,6 @@ const SchedulePage = () => {
       const district = parsedUser?.district || 'Colombo';
       setUserDistrict(district);
 
-      // Fetch schedules using district and JWT token
       fetchSchedules(district, token);
     } catch (err) {
       console.error("Error parsing user data from localStorage", err);
@@ -56,12 +53,9 @@ const SchedulePage = () => {
 
   return (
     <div style={styles.container}>
-      {/* Left Navigation Sidebar */}
       <Sidebar />
 
-      {/* Main Page Area */}
       <div style={styles.content}>
-        {/* Dynamic Header with District */}
         <div style={styles.headerContainer}>
           <h1 style={styles.title}>Collection Schedule</h1>
           <p style={styles.subtitle}>
@@ -69,7 +63,6 @@ const SchedulePage = () => {
           </p>
         </div>
 
-        {/* Table Container Card */}
         <div style={styles.card}>
           {loading ? (
             <div style={{ padding: '30px', textAlign: 'center', color: '#333' }}>
@@ -87,10 +80,11 @@ const SchedulePage = () => {
             <table style={styles.table}>
               <thead>
                 <tr style={styles.headerRow}>
-                  <th style={{ ...styles.th, width: '22%' }}>DATE</th>
-                  <th style={{ ...styles.th, width: '24%' }}>DAY</th>
-                  <th style={{ ...styles.th, width: '22%' }}>TIME</th>
-                  <th style={{ ...styles.th, width: '32%' }}>WASTE TYPE</th>
+                  <th style={{ ...styles.th, width: '18%' }}>DATE</th>
+                  <th style={{ ...styles.th, width: '15%' }}>DAY</th>
+                  <th style={{ ...styles.th, width: '17%' }}>TIME</th>
+                  <th style={{ ...styles.th, width: '25%' }}>LOCATION / PLACE</th>
+                  <th style={{ ...styles.th, width: '25%' }}>WASTE TYPE</th>
                 </tr>
               </thead>
               <tbody>
@@ -101,6 +95,11 @@ const SchedulePage = () => {
                     : {};
 
                   const isRecyclable = item.wasteType?.toLowerCase().includes('recyclable') && !item.wasteType?.toLowerCase().includes('non');
+                  
+                  const areaName = item.area || item.specificArea || item.town || '';
+                  const locationText = item.district 
+                    ? `${item.district} ${areaName ? `(${areaName})` : ''}` 
+                    : (areaName || '-');
 
                   return (
                     <tr key={item._id || index} style={styles.tr}>
@@ -112,6 +111,9 @@ const SchedulePage = () => {
                       </td>
                       <td style={{ ...styles.td, ...cellBorderStyle }}>
                         {item.timeSlot || item.time || '-'}
+                      </td>
+                      <td style={{ ...styles.tdLocation, ...cellBorderStyle }}>
+                        {locationText}
                       </td>
                       <td style={{ ...styles.td, ...cellBorderStyle }}>
                         {isRecyclable ? (
@@ -138,7 +140,6 @@ const SchedulePage = () => {
   );
 };
 
-// Styles
 const styles = {
   container: {
     display: 'flex',
@@ -204,6 +205,14 @@ const styles = {
     fontSize: '13.5px',
     fontWeight: 'bold',
     color: '#000000',
+    textAlign: 'left',
+    boxSizing: 'border-box',
+  },
+  tdLocation: {
+    padding: '12px 20px',
+    fontSize: '13.5px',
+    fontWeight: '600',
+    color: '#111111',
     textAlign: 'left',
     boxSizing: 'border-box',
   },
