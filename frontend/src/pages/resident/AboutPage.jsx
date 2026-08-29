@@ -10,17 +10,17 @@ const About = () => {
         <h1 style={styles.heading}>About CleanTrack</h1>
 
         <p style={styles.subHeading}>
-          Connecting residents and the local council to keep the city clean.
+          Connecting residents and local councils to keep Sri Lanka clean.
         </p>
 
         {/* About Box */}
         <div style={styles.aboutBox}>
           <p style={styles.text}>
             CleanTrack is a web platform that lets residents report overflowing
-            bins and illegal dumping in seconds, and lets the local council
+            bins and illegal dumping in seconds, and lets local councils
             publish collection schedules and respond to issues faster. Our goal
             is simple: less uncollected waste, fewer health risks, and a cleaner
-            Anuradhapura.
+            Sri Lanka.
           </p>
         </div>
 
@@ -30,8 +30,8 @@ const About = () => {
         <div style={styles.contactBox}>
           <div style={styles.row}>
             <div>
-              <p style={styles.label}>📞 COUNCIL HOTLINE</p>
-              <p style={styles.value}>+94 25 222 1234</p>
+              <p style={styles.label}>📞 HELPLINE</p>
+              <p style={styles.value}>+94 11 212 3456</p>
             </div>
           </div>
 
@@ -41,7 +41,7 @@ const About = () => {
             <div>
               <p style={styles.label}>✉️ EMAIL</p>
               <p style={styles.value}>
-                support@cleantrack-anuradhapura.lk
+                support@cleantrack.lk
               </p>
             </div>
           </div>
@@ -50,9 +50,9 @@ const About = () => {
 
           <div style={styles.row}>
             <div>
-              <p style={styles.label}>📍 OFFICE</p>
+              <p style={styles.label}>📍 HEAD OFFICE</p>
               <p style={styles.value}>
-                Anuradhapura Municipal Council, New Town Road
+                Central Waste Management Authority, Sri Lanka
               </p>
             </div>
           </div>
@@ -63,7 +63,7 @@ const About = () => {
             <div>
               <p style={styles.label}>🕒 OFFICE HOURS</p>
               <p style={styles.value}>
-                Mon–Fri, 8:30 AM – 4:30 PM
+                Mon - Fri, 8:30 AM - 4:30 PM
               </p>
             </div>
           </div>
@@ -152,4 +152,3 @@ const styles = {
 };
 
 export default About;
-
