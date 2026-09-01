@@ -1,12 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
+import axios from 'axios';
 
-// Replace 'localhost' with your computer's IP address when connecting via mobile (e.g., http://192.168.1.5:5000)
+// Connect to Socket.io server
 const socket = io('http://localhost:5000'); 
+
+// List of all 25 districts in Sri Lanka
+const SRI_LANKA_DISTRICTS = [
+  'Ampara', 'Anuradhapura', 'Badulla', 'Batticaloa', 'Colombo',
+  'Galle', 'Gampaha', 'Hambantota', 'Jaffna', 'Kalutara',
+  'Kandy', 'Kegalle', 'Kilinochchi', 'Kurunegala', 'Mannar',
+  'Matale', 'Matara', 'Moneragala', 'Mullaitivu', 'Nuwara Eliya',
+  'Polonnaruwa', 'Puttalam', 'Ratnapura', 'Trincomalee', 'Vavuniya'
+];
 
 const DriverPage = () => {
   const [isTracking, setIsTracking] = useState(false);
   const [currentCoords, setCurrentCoords] = useState(null);
+  const [district, setDistrict] = useState('Gampaha');
+  const [loading, setLoading] = useState(false);
 
   const toggleTracking = () => {
     if (isTracking) {
@@ -15,26 +27,38 @@ const DriverPage = () => {
     setIsTracking(!isTracking);
   };
 
+  // Send district-wide SMS alert via backend API
+  const handleSendSMSAlert = async (selectedDistrict) => {
+    setLoading(true);
+    try {
+      await axios.post('http://localhost:5000/api/sms/send-alert', { district: selectedDistrict });
+      alert(`SMS Alert sent for ${selectedDistrict} district!`);
+    } catch (error) {
+      console.error('Failed to send SMS alerts:', error);
+      alert('Failed to send SMS alerts.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     let watchId;
 
     if (isTracking) {
-      // Enable mobile device GPS (Geolocation API)
       if ('geolocation' in navigator) {
         watchId = navigator.geolocation.watchPosition(
           (position) => {
             const { latitude, longitude } = position.coords;
             setCurrentCoords({ lat: latitude, lng: longitude });
 
-            // Send Driver's real GPS location to Backend via Socket.io
+            // Transmit real-time GPS location via Socket.io
             socket.emit('updateLocation', { lat: latitude, lng: longitude });
           },
           (error) => {
             alert('GPS Error: ' + error.message);
           },
           {
-            enableHighAccuracy: true, // Request precise GPS coordinates
+            enableHighAccuracy: true,
             maximumAge: 0,
             timeout: 5000,
           }
@@ -70,6 +94,34 @@ const DriverPage = () => {
           <p><strong>Current Lng:</strong> {currentCoords.lng}</p>
         </div>
       )}
+
+      {/* District Alert Section */}
+      <div style={styles.smsBox}>
+        <h3>📲 Send Arrival SMS Alert</h3>
+        
+        <div style={{ marginBottom: '15px' }}>
+          <label><strong>Select District: </strong></label>
+          <select 
+            value={district} 
+            onChange={(e) => setDistrict(e.target.value)}
+            style={styles.input}
+          >
+            {SRI_LANKA_DISTRICTS.map((dist) => (
+              <option key={dist} value={dist}>
+                {dist}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <button 
+          onClick={() => handleSendSMSAlert(district)} 
+          disabled={loading}
+          style={styles.smsButton}
+        >
+          {loading ? 'Sending SMS...' : `📢 Notify ${district} Residents`}
+        </button>
+      </div>
     </div>
   );
 };
@@ -92,6 +144,31 @@ const styles = {
     borderRadius: '8px',
     display: 'inline-block',
   },
+  smsBox: {
+    marginTop: '30px',
+    padding: '20px',
+    backgroundColor: '#f8f9fa',
+    border: '1px solid #dee2e6',
+    borderRadius: '10px',
+    maxWidth: '400px',
+    margin: '30px auto 0 auto',
+  },
+  input: {
+    padding: '8px',
+    fontSize: '14px',
+    borderRadius: '5px',
+    border: '1px solid #ccc',
+    marginLeft: '10px',
+  },
+  smsButton: {
+    padding: '12px 24px',
+    fontSize: '16px',
+    backgroundColor: '#0d6efd',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '6px',
+    cursor: 'pointer',
+  }
 };
 
 export default DriverPage;

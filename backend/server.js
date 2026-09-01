@@ -57,6 +57,7 @@ app.use('/api/complaints', require('./routes/complaintRoutes'));
 app.use('/api/schedules', require('./routes/scheduleRoutes'));
 app.use('/api/schedule', require('./routes/scheduleRoutes'));
 app.use('/api/feedback', require('./routes/feedbackRoutes'));
+app.use('/api/sms', require('./routes/smsRoute'));
 
 app.get('/', (req, res) => {
   res.send('CleanTrack API is running...');
