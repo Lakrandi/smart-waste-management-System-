@@ -39,7 +39,7 @@ const HomePage = () => {
       };
 
       // Fetch user complaints
-      const complaintRes = await axios.get('http://localhost:5000/api/complaints/my', config);
+      const complaintRes = await axios.get('https://cleantrack-backend-hst9.onrender.com/api/complaints/my', config);
       const complaints = complaintRes.data || [];
 
       // Calculate open and resolved complaint counts
@@ -50,7 +50,7 @@ const HomePage = () => {
       setResolvedCount(resolved);
 
       // Fetch schedule data
-      const scheduleRes = await axios.get('http://localhost:5000/api/schedule', config);
+      const scheduleRes = await axios.get('https://cleantrack-backend-hst9.onrender.com/api/schedule', config);
       if (scheduleRes.data && scheduleRes.data.length > 0) {
         const item = scheduleRes.data[0];
         setNextPickup({

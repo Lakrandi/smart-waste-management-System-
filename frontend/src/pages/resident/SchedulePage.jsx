@@ -35,7 +35,7 @@ const SchedulePage = () => {
   const fetchSchedules = async (district, token) => {
     try {
       const res = await axios.get(
-        `http://localhost:5000/api/schedules?district=${district}`,
+        `https://cleantrack-backend-hst9.onrender.com/api/schedules?district=${district}`,
         {
           headers: {
             Authorization: `Bearer ${token}`

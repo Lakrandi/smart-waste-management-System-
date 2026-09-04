@@ -50,7 +50,7 @@ const ProfilePage = () => {
     try {
       if (token) {
         const res = await axios.put(
-          'http://localhost:5000/api/users/profile',
+          'https://cleantrack-backend-hst9.onrender.com/api/users/profile',
           formData,
           {
             headers: {

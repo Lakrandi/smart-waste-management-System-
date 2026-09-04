@@ -29,7 +29,7 @@ const ComplaintsPage = () => {
   const fetchMyComplaints = async () => {
     try {
       const token = localStorage.getItem('token'); // Retrieve the token from localStorage
-      const res = await axios.get('http://localhost:5000/api/complaints/my', {
+      const res = await axios.get('https://cleantrack-backend-hst9.onrender.com/api/complaints/my', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setComplaints(res.data);
@@ -54,7 +54,7 @@ const ComplaintsPage = () => {
       const fullDescription = `Location: ${location}${description ? ` | Details: ${description}` : ''}`;
 
       const res = await axios.post(
-        'http://localhost:5000/api/complaints',
+        'https://cleantrack-backend-hst9.onrender.com/api/complaints',
         {
           title: issueType,
           description: fullDescription,

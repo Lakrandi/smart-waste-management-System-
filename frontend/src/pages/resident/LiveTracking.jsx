@@ -26,7 +26,7 @@ const RecenterMap = ({ center }) => {
 };
 
 // Socket Connection
-const socket = io('http://localhost:5000');
+const socket = io('https://cleantrack-backend-hst9.onrender.com');
 
 const LiveTracking = () => {
   // Truck Coordinates State (Default: Colombo)

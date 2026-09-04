@@ -13,7 +13,7 @@ const AdminFeedbackPage = () => {
   const fetchFeedbacks = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get("http://localhost:5000/api/feedback/all", {
+      const res = await axios.get("https://cleantrack-backend-hst9.onrender.com/api/feedback/all", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setFeedbacks(res.data);

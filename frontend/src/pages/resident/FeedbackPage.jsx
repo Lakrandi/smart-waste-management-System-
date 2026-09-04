@@ -17,7 +17,7 @@ const FeedbackPage = () => {
   const fetchResolvedComplaints = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get("http://localhost:5000/api/complaints/my", {
+      const res = await axios.get("https://cleantrack-backend-hst9.onrender.com/api/complaints/my", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -59,7 +59,7 @@ const FeedbackPage = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.post(
-        "http://localhost:5000/api/feedback",
+        "https://cleantrack-backend-hst9.onrender.com/api/feedback",
         {
           complaintId,
           rating: feedbackData.rating,
@@ -89,7 +89,7 @@ const FeedbackPage = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.post(
-        "http://localhost:5000/api/feedback",
+        "https://cleantrack-backend-hst9.onrender.com/api/feedback",
         {
           rating: generalRating,
           comment: generalComment,

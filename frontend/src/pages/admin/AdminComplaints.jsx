@@ -26,7 +26,7 @@ const AdminComplaints = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      let url = 'http://localhost:5000/api/complaints';
+      let url = 'https://cleantrack-backend-hst9.onrender.com/api/complaints';
       
       if (selectedDistrict !== 'All Districts') {
         url += `?district=${selectedDistrict}`;
@@ -49,7 +49,7 @@ const AdminComplaints = () => {
     try {
       const token = localStorage.getItem('token');
       const res = await axios.put(
-        `http://localhost:5000/api/complaints/${id}`,
+        `https://cleantrack-backend-hst9.onrender.com/api/complaints/${id}`,
         { status: 'Resolved' },
         { headers: { Authorization: `Bearer ${token}` } }
       );

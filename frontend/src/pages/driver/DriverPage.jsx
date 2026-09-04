@@ -3,7 +3,7 @@ import { io } from 'socket.io-client';
 import axios from 'axios';
 
 // Connect to Socket.io server
-const socket = io('http://localhost:5000'); 
+const socket = io('https://cleantrack-backend-hst9.onrender.com'); 
 
 // List of all 25 districts in Sri Lanka
 const SRI_LANKA_DISTRICTS = [
@@ -31,7 +31,7 @@ const DriverPage = () => {
   const handleSendSMSAlert = async (selectedDistrict) => {
     setLoading(true);
     try {
-      await axios.post('http://localhost:5000/api/sms/send-alert', { district: selectedDistrict });
+      await axios.post('https://cleantrack-backend-hst9.onrender.com/api/sms/send-alert', { district: selectedDistrict });
       alert(`SMS Alert sent for ${selectedDistrict} district!`);
     } catch (error) {
       console.error('Failed to send SMS alerts:', error);

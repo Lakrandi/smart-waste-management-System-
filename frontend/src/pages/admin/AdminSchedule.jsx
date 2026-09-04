@@ -24,7 +24,7 @@ const AdminSchedule = () => {
   });
 
   // API Base URL
-  const API_URL = 'http://localhost:5000/api/schedules';
+  const API_URL = 'https://cleantrack-backend-hst9.onrender.com/api/schedules';
 
   // 1. Fetch all schedules from the backend when the component mounts
   useEffect(() => {
