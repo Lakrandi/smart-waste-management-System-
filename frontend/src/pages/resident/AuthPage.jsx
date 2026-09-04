@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -15,6 +15,15 @@ const AuthPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
+
+  // Screen size state for responsiveness
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Form Data and Alert States
   const [formData, setFormData] = useState({
@@ -40,7 +49,6 @@ const AuthPage = () => {
     setSuccessMessage('');
 
     if (isSignUp) {
-      // ---------------- REGISTER LOGIC ----------------
       if (formData.password !== formData.confirmPassword) {
         setError('Passwords do not match!');
         return;
@@ -55,28 +63,22 @@ const AuthPage = () => {
           district: formData.district
         });
 
-        // Save token and user details to localStorage on registration (Auto Login)
         localStorage.setItem('token', res.data.token);
         localStorage.setItem('user', JSON.stringify(res.data.user));
-
-        // Direct navigation to Resident Home
         navigate('/home');
       } catch (err) {
         setError(err.response?.data?.message || 'Registration failed. Try again.');
       }
     } else {
-      // ---------------- LOGIN LOGIC ----------------
       try {
         const res = await axios.post('https://cleantrack-backend-hst9.onrender.com/api/auth/login', {
           email: formData.email,
           password: formData.password
         });
 
-        // Save Token & User to LocalStorage
         localStorage.setItem('token', res.data.token);
         localStorage.setItem('user', JSON.stringify(res.data.user));
 
-        // Role-Based Navigation
         const role = res.data.user?.role;
         if (role === 'admin') {
           navigate('/admin-dashboard');
@@ -92,31 +94,35 @@ const AuthPage = () => {
   };
 
   return (
-    <div style={styles.container}>
+    <div style={{ ...styles.container, flexDirection: isMobile ? 'column' : 'row' }}>
       {/* Left Green Banner Panel */}
-      <div style={styles.leftPanel}>
+      <div style={{ 
+        ...styles.leftPanel, 
+        width: isMobile ? '100%' : '38%', 
+        padding: isMobile ? '30px 20px' : '50px 40px' 
+      }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '5px' }}>
             <span style={{ color: '#fff', fontSize: '20px' }}>●</span>
             <h2 style={{ color: '#fff', margin: 0, fontSize: '24px', fontWeight: 'bold' }}>CleanTrack</h2>
           </div>
           
-          <p style={{ color: '#a0bfa0', fontSize: '12px', margin: '0 0 30px 0', whiteSpace: 'nowrap' }}>
+          <p style={{ color: '#a0bfa0', fontSize: '12px', margin: '0 0 20px 0' }}>
             Sri Lankan Smart Waste Management System
           </p>
 
-          <h1 style={styles.leftTitle}>
+          <h1 style={{ ...styles.leftTitle, fontSize: isMobile ? '26px' : '36px' }}>
             Welcome to the<br />Resident Portal
           </h1>
           <p style={styles.leftDesc}>
             Manage your household waste collection, submit complaints, and stay updated with your local council services across Sri Lanka.
           </p>
 
-          <div style={styles.iconBox}>♻️</div>
+          {!isMobile && <div style={styles.iconBox}>♻️</div>}
         </div>
 
         {/* Feature List */}
-        <div style={styles.featureList}>
+        <div style={{ ...styles.featureList, marginTop: isMobile ? '20px' : '10px' }}>
           <div style={styles.featureItem}>
             <span style={styles.featureIcon}>🗓️</span>
             <span style={styles.featureText}>View waste collection schedules</span>
@@ -133,7 +139,10 @@ const AuthPage = () => {
       </div>
 
       {/* Right Form Panel */}
-      <div style={styles.rightPanel}>
+      <div style={{ 
+        ...styles.rightPanel, 
+        padding: isMobile ? '30px 20px' : '50px' 
+      }}>
         {/* Top Tab Switcher */}
         <div style={styles.tabContainer}>
           <button 
@@ -336,18 +345,18 @@ const AuthPage = () => {
 
 const styles = {
   container: { display: 'flex', minHeight: '100vh', fontFamily: 'sans-serif' },
-  leftPanel: { width: '38%', backgroundColor: '#0d3b14', color: '#fff', padding: '50px 40px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' },
-  leftTitle: { fontSize: '36px', fontWeight: 'bold', margin: '0 0 20px 0', color: '#ffffff', lineHeight: '1.2', textAlign: 'left' },
+  leftPanel: { backgroundColor: '#0d3b14', color: '#fff', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' },
+  leftTitle: { fontWeight: 'bold', margin: '0 0 20px 0', color: '#ffffff', lineHeight: '1.2', textAlign: 'left' },
   leftDesc: { color: '#c3d8c3', fontSize: '14px', lineHeight: '1.6', textAlign: 'left' },
-  iconBox: { fontSize: '75px', textAlign: 'center', margin: '50px 0 30px 0' },
-  featureList: { fontSize: '14px', color: '#dce5dc', display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '10px' },
+  iconBox: { fontSize: '75px', textAlign: 'center', margin: '30px 0' },
+  featureList: { fontSize: '14px', color: '#dce5dc', display: 'flex', flexDirection: 'column', gap: '16px' },
   featureItem: { display: 'flex', alignItems: 'flex-start', gap: '10px', textAlign: 'left' },
   featureIcon: { fontSize: '16px', flexShrink: 0, lineHeight: '1.4' },
   featureText: { textAlign: 'left', lineHeight: '1.4' },
-  rightPanel: { flex: 1, backgroundColor: '#ffffff', padding: '50px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' },
-  tabContainer: { display: 'flex', backgroundColor: '#e2e8e2', borderRadius: '12px', padding: '4px', width: '400px', marginBottom: '35px' },
+  rightPanel: { flex: 1, backgroundColor: '#ffffff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', boxSizing: 'border-box' },
+  tabContainer: { display: 'flex', backgroundColor: '#e2e8e2', borderRadius: '12px', padding: '4px', width: '100%', maxWidth: '400px', marginBottom: '35px', boxSizing: 'border-box' },
   tabBtn: { flex: 1, border: 'none', padding: '12px', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', transition: 'all 0.2s ease' },
-  form: { width: '400px', display: 'flex', flexDirection: 'column', alignItems: 'stretch', textAlign: 'left' },
+  form: { width: '100%', maxWidth: '400px', display: 'flex', flexDirection: 'column', alignItems: 'stretch', textAlign: 'left', boxSizing: 'border-box' },
   formTitle: { margin: '0 0 6px 0', fontSize: '28px', color: '#111111', fontWeight: 'bold', textAlign: 'left' },
   formSubtitle: { color: '#666666', fontSize: '14px', marginBottom: '24px', textAlign: 'left' },
   label: { fontSize: '13px', fontWeight: 'bold', margin: '12px 0 6px 0', color: '#111111', textAlign: 'left', display: 'block' },

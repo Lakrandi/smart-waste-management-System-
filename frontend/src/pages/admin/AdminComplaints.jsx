@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import AdminSidebar from '../../components/AdminSidebar';
 
-// List of all districts in Sri Lanka, including an option for "All Districts"
 const SRI_LANKA_DISTRICTS = [
   "All Districts",
   "Ampara", "Anuradhapura", "Badulla", "Batticaloa", "Colombo",
@@ -16,8 +15,16 @@ const AdminComplaints = () => {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedDistrict, setSelectedDistrict] = useState('All Districts');
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
-  // Fetch complaints whenever the selected district changes
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   useEffect(() => {
     fetchComplaints();
   }, [selectedDistrict]);
@@ -44,17 +51,15 @@ const AdminComplaints = () => {
     }
   };
 
-  // Handle marking a complaint as resolved
   const handleMarkResolved = async (id) => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.put(
+      await axios.put(
         `https://cleantrack-backend-hst9.onrender.com/api/complaints/${id}`,
         { status: 'Resolved' },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      // Update the local state to reflect the change without refetching
       setTickets((prev) =>
         prev.map((ticket) =>
           ticket._id === id ? { ...ticket, status: 'Resolved' } : ticket
@@ -68,24 +73,36 @@ const AdminComplaints = () => {
 
   return (
     <div style={styles.container}>
-      {/* Admin Sidebar */}
       <AdminSidebar />
 
-      {/* Main Content */}
-      <div style={styles.content}>
+      <div
+        style={{
+          ...styles.content,
+          marginLeft: isMobile ? '0px' : '260px',
+          padding: isMobile ? '80px 15px 20px 15px' : '40px 50px',
+        }}
+      >
         <div style={styles.innerContainer}>
           <h1 style={styles.title}>Complaints</h1>
           <p style={styles.subtitle}>
             Review resident complaints and mark them resolved.
           </p>
 
-          {/* District Filter Section */}
-          <div style={styles.filterSection}>
+          <div
+            style={{
+              ...styles.filterSection,
+              flexDirection: isMobile ? 'column' : 'row',
+              alignItems: isMobile ? 'flex-start' : 'center',
+            }}
+          >
             <label style={styles.filterLabel}>FILTER BY DISTRICT:</label>
             <select
               value={selectedDistrict}
               onChange={(e) => setSelectedDistrict(e.target.value)}
-              style={styles.filterSelect}
+              style={{
+                ...styles.filterSelect,
+                width: isMobile ? '100%' : 'auto',
+              }}
             >
               {SRI_LANKA_DISTRICTS.map((district) => (
                 <option key={district} value={district}>
@@ -95,7 +112,6 @@ const AdminComplaints = () => {
             </select>
           </div>
 
-          {/* Ticket Cards List */}
           <div style={styles.ticketList}>
             {loading ? (
               <p style={{ color: '#666' }}>Loading complaints...</p>
@@ -106,45 +122,60 @@ const AdminComplaints = () => {
                 const isResolved = ticket.status === 'Resolved';
                 
                 return (
-                  <div key={ticket._id} style={styles.card}>
-                    {/* Left Side: Ticket Details */}
+                  <div
+                    key={ticket._id}
+                    style={{
+                      ...styles.card,
+                      flexDirection: isMobile ? 'column' : 'row',
+                      alignItems: isMobile ? 'flex-start' : 'center',
+                      gap: isMobile ? '14px' : '20px',
+                    }}
+                  >
                     <div style={styles.cardLeft}>
-                      <span style={styles.ticketId}>
-                        TICKET #{ticket._id.substring(ticket._id.length - 6).toUpperCase()}
-                      </span>
+                      <div style={styles.cardHeaderRow}>
+                        <span style={styles.ticketId}>
+                          TICKET #{ticket._id.substring(ticket._id.length - 6).toUpperCase()}
+                        </span>
+                        <span
+                          style={{
+                            ...styles.statusBadge,
+                            backgroundColor: isResolved ? '#8fc499' : '#fcd34d',
+                            color: isResolved ? '#0d3b14' : '#78350f',
+                          }}
+                        >
+                          {isResolved ? '✓ Resolved' : ticket.status || 'Pending'}
+                        </span>
+                      </div>
+
                       <h3 style={styles.ticketType}>{ticket.title}</h3>
                       <p style={styles.districtText}>
                         <strong>District:</strong> {ticket.district}
                       </p>
                       <p style={styles.location}>{ticket.description}</p>
-
-                      {/* Status Badge */}
-                      <div
-                        style={{
-                          ...styles.statusBadge,
-                          backgroundColor: isResolved ? '#8fc499' : '#D8E2D8',
-                          color: isResolved ? '#0d3b14' : '#2d5a34',
-                        }}
-                      >
-                        {isResolved ? '✓ Resolved' : ticket.status}
-                      </div>
                     </div>
 
-                    {/* Right Side: Action Button */}
-                    <div style={styles.cardRight}>
-                      {isResolved ? (
-                        <button style={styles.resolvedBtn} disabled>
-                          RESOLVED
-                        </button>
-                      ) : (
+                    {!isResolved && (
+                      <div
+                        style={{
+                          ...styles.cardRight,
+                          borderLeft: isMobile ? 'none' : '1px solid #d0d0d0',
+                          borderTop: isMobile ? '1px solid #e0e0e0' : 'none',
+                          paddingLeft: isMobile ? '0' : '20px',
+                          paddingTop: isMobile ? '12px' : '0',
+                          width: isMobile ? '100%' : 'auto',
+                        }}
+                      >
                         <button
                           onClick={() => handleMarkResolved(ticket._id)}
-                          style={styles.markBtn}
+                          style={{
+                            ...styles.markBtn,
+                            width: isMobile ? '100%' : 'auto',
+                          }}
                         >
                           MARK RESOLVED
                         </button>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 );
               })
@@ -164,12 +195,11 @@ const styles = {
     fontFamily: 'Arial, sans-serif',
   },
   content: {
-    marginLeft: '260px',
     flex: 1,
-    padding: '40px 50px',
     display: 'flex',
     justify: 'flex-start',
     boxSizing: 'border-box',
+    width: '100%',
   },
   innerContainer: {
     width: '100%',
@@ -194,7 +224,6 @@ const styles = {
   },
   filterSection: {
     display: 'flex',
-    alignItems: 'center',
     gap: '12px',
     marginBottom: '24px',
     backgroundColor: '#ffffff',
@@ -224,18 +253,18 @@ const styles = {
   ticketList: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '20px',
+    gap: '16px',
     width: '100%',
   },
   card: {
     backgroundColor: '#ffffff',
-    borderRadius: '16px',
+    borderRadius: '14px',
     border: '1px solid #d0d0d0',
-    padding: '20px 24px',
+    padding: '18px 20px',
     display: 'flex',
     justify: 'space-between',
-    alignItems: 'center',
     boxSizing: 'border-box',
+    width: '100%',
   },
   cardLeft: {
     display: 'flex',
@@ -243,16 +272,30 @@ const styles = {
     alignItems: 'flex-start',
     textAlign: 'left',
     flex: 1,
+    width: '100%',
+  },
+  cardHeaderRow: {
+    display: 'flex',
+    justify: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    marginBottom: '6px',
   },
   ticketId: {
     fontSize: '11px',
     fontWeight: 'bold',
-    color: '#333333',
+    color: '#666666',
     letterSpacing: '0.5px',
-    textTransform: 'uppercase',
+  },
+  statusBadge: {
+    padding: '4px 12px',
+    borderRadius: '12px',
+    fontSize: '11px',
+    fontWeight: 'bold',
+    display: 'inline-block',
   },
   ticketType: {
-    margin: '6px 0 4px 0',
+    margin: '4px 0',
     fontSize: '16px',
     fontWeight: 'bold',
     color: '#000000',
@@ -263,53 +306,27 @@ const styles = {
     color: '#2d5a34',
   },
   location: {
-    margin: '0 0 12px 0',
+    margin: '0',
     fontSize: '13px',
     color: '#555555',
     whiteSpace: 'pre-line',
   },
-  statusBadge: {
-    width: '100%',
-    maxWidth: '280px',
-    padding: '8px 16px',
-    borderRadius: '20px',
-    fontSize: '12px',
-    fontWeight: 'bold',
-    textAlign: 'center',
-    boxSizing: 'border-box',
-  },
   cardRight: {
-    borderLeft: '2px solid #a0a0a0',
-    alignSelf: 'stretch',
-    paddingLeft: '30px',
-    marginLeft: '20px',
     display: 'flex',
     alignItems: 'center',
     justify: 'center',
-    minWidth: '160px',
+    boxSizing: 'border-box',
   },
   markBtn: {
     backgroundColor: '#0d3b14',
     color: '#ffffff',
     border: 'none',
-    padding: '12px 20px',
+    padding: '10px 18px',
     borderRadius: '20px',
     fontWeight: 'bold',
     fontSize: '11px',
     cursor: 'pointer',
     letterSpacing: '0.5px',
-  },
-  resolvedBtn: {
-    backgroundColor: '#0d3b14',
-    color: '#ffffff',
-    border: 'none',
-    padding: '12px 28px',
-    borderRadius: '20px',
-    fontWeight: 'bold',
-    fontSize: '11px',
-    cursor: 'default',
-    letterSpacing: '0.5px',
-    opacity: 0.9,
   },
 };
 

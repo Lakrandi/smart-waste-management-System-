@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import AdminSidebar from '../../components/AdminSidebar';
 
-// List of all districts in Sri Lanka
 const SRI_LANKA_DISTRICTS = [
   "Ampara", "Anuradhapura", "Badulla", "Batticaloa", "Colombo",
   "Galle", "Gampaha", "Hambantota", "Jaffna", "Kalutara",
@@ -14,6 +13,7 @@ const SRI_LANKA_DISTRICTS = [
 const AdminSchedule = () => {
   const [schedules, setSchedules] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   const [formData, setFormData] = useState({
     date: '',
@@ -23,10 +23,16 @@ const AdminSchedule = () => {
     area: ''
   });
 
-  // API Base URL
   const API_URL = 'https://cleantrack-backend-hst9.onrender.com/api/schedules';
 
-  // 1. Fetch all schedules from the backend when the component mounts
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   useEffect(() => {
     fetchSchedules();
   }, []);
@@ -50,15 +56,12 @@ const AdminSchedule = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // 2. Add a new schedule to the database
   const handleAddSchedule = async (e) => {
     e.preventDefault();
     if (!formData.date || !formData.timeSlot) return;
 
     try {
       const token = localStorage.getItem('token');
-
-      // Extract day name from selected date to satisfy backend schema
       const selectedDate = new Date(formData.date);
       const dayName = selectedDate.toLocaleDateString('en-US', { weekday: 'long' });
 
@@ -78,7 +81,6 @@ const AdminSchedule = () => {
       const newSchedule = res.data.data || res.data;
       setSchedules([newSchedule, ...schedules]);
 
-      // Reset form
       setFormData({
         date: '',
         timeSlot: '09:00 AM',
@@ -94,7 +96,6 @@ const AdminSchedule = () => {
     }
   };
 
-  // 3. Remove a schedule from the database
   const handleRemove = async (id) => {
     if (!window.confirm('Are you sure you want to delete this schedule?')) return;
 
@@ -129,21 +130,28 @@ const AdminSchedule = () => {
     <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f8fafc', fontFamily: "'Inter', sans-serif" }}>
       <AdminSidebar />
 
-      <div style={{ flex: 1, marginLeft: '260px', padding: '32px 24px', minWidth: 0 }}>
+      <div style={{
+        flex: 1,
+        marginLeft: isMobile ? '0px' : '260px',
+        padding: isMobile ? '80px 16px 20px 16px' : '32px 24px',
+        minWidth: 0
+      }}>
         <h1 style={{ fontSize: '24px', fontWeight: '700', color: '#1e293b', marginBottom: '24px' }}>
           Manage Collection Schedule
         </h1>
 
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', alignItems: 'flex-start' }}>
+        <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '24px', alignItems: 'flex-start' }}>
 
-          {/* Light Green Form Card */}
+          {/* Form Card */}
           <div style={{
-            flex: '1 1 300px',
+            width: isMobile ? '100%' : '320px',
+            flexShrink: 0,
             backgroundColor: '#ffffff',
             padding: '24px',
             borderRadius: '12px',
             border: '1px solid #bbf7d0',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
+            boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+            boxSizing: 'border-box'
           }}>
             <h3 style={{ fontSize: '12px', fontWeight: '800', color: '#166534', marginBottom: '20px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
               Add New Entry
@@ -237,77 +245,127 @@ const AdminSchedule = () => {
             </form>
           </div>
 
-          {/* Table Section */}
+          {/* Schedule List / Table */}
           <div style={{
-            flex: '2 1 480px',
+            flex: 1,
+            width: '100%',
             backgroundColor: '#fff',
             borderRadius: '12px',
             border: '1px solid #e2e8f0',
             boxShadow: '0 2px 4px rgba(0,0,0,0.02)',
-            overflow: 'hidden'
+            overflowX: 'auto'
           }}>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: '95px 110px 125px 1fr 65px',
-              padding: '14px 16px',
-              backgroundColor: '#f1f5f9',
-              color: '#475569',
-              fontSize: '11px',
-              fontWeight: '800',
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px',
-              alignItems: 'center'
-            }}>
-              <div>DATE</div>
-              <div>TIME</div>
-              <div>TYPE</div>
-              <div>DISTRICT</div>
-              <div style={{ textAlign: 'right' }}>ACTION</div>
-            </div>
-
             {loading ? (
               <div style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>Loading schedules...</div>
             ) : schedules.length === 0 ? (
               <div style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>No schedules available</div>
             ) : (
-              schedules.map((item, index) => (
-                <div
-                  key={item._id || index}
-                  style={{
+              <div style={{ minWidth: isMobile ? '100%' : '580px' }}>
+                {/* Header (Hidden on Mobile for Card View) */}
+                {!isMobile && (
+                  <div style={{
                     display: 'grid',
-                    gridTemplateColumns: '95px 110px 125px 1fr 65px',
-                    padding: '16px',
-                    alignItems: 'center',
-                    borderBottom: index !== schedules.length - 1 ? '1px solid #f1f5f9' : 'none'
-                  }}
-                >
-                  <div style={{ fontSize: '12px', fontWeight: '700', color: '#1e293b', whiteSpace: 'nowrap' }}>{item.date}</div>
-                  <div style={{ fontSize: '12px', color: '#64748b', whiteSpace: 'nowrap' }}>{item.timeSlot || item.time}</div>
-                  <div>
-                    <span style={getTypeBadgeStyle(item.wasteType || item.type)}>{item.wasteType || item.type}</span>
+                    gridTemplateColumns: '110px 100px 130px 1fr 70px',
+                    padding: '14px 16px',
+                    backgroundColor: '#f1f5f9',
+                    color: '#475569',
+                    fontSize: '11px',
+                    fontWeight: '800',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    alignItems: 'center'
+                  }}>
+                    <div>DATE</div>
+                    <div>TIME</div>
+                    <div>TYPE</div>
+                    <div>DISTRICT</div>
+                    <div style={{ textAlign: 'right' }}>ACTION</div>
                   </div>
-                  <div style={{ fontSize: '12px', color: '#334155', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {item.district} {item.area ? `(${item.area})` : ''}
+                )}
+
+                {/* Rows / Cards */}
+                {schedules.map((item, index) => (
+                  <div
+                    key={item._id || index}
+                    style={isMobile ? {
+                      padding: '16px',
+                      borderBottom: '1px solid #e2e8f0',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '8px'
+                    } : {
+                      display: 'grid',
+                      gridTemplateColumns: '110px 100px 130px 1fr 70px',
+                      padding: '16px',
+                      alignItems: 'center',
+                      borderBottom: index !== schedules.length - 1 ? '1px solid #f1f5f9' : 'none'
+                    }}
+                  >
+                    {isMobile ? (
+                      /* Mobile Card Layout */
+                      <div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                          <span style={{ fontSize: '13px', fontWeight: '700', color: '#1e293b' }}>
+                            {item.date} ({item.timeSlot || item.time})
+                          </span>
+                          <span style={getTypeBadgeStyle(item.wasteType || item.type)}>
+                            {item.wasteType || item.type}
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
+                          <span style={{ fontSize: '13px', color: '#334155' }}>
+                            📍 {item.district} {item.area ? `(${item.area})` : ''}
+                          </span>
+                          <button
+                            onClick={() => handleRemove(item._id)}
+                            style={{
+                              cursor: 'pointer',
+                              background: 'none',
+                              border: 'none',
+                              color: '#ef4444',
+                              fontSize: '12px',
+                              fontWeight: '600',
+                              textDecoration: 'underline',
+                              padding: 0
+                            }}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      /* Desktop Grid Row */
+                      <>
+                        <div style={{ fontSize: '12px', fontWeight: '700', color: '#1e293b', whiteSpace: 'nowrap' }}>{item.date}</div>
+                        <div style={{ fontSize: '12px', color: '#64748b', whiteSpace: 'nowrap' }}>{item.timeSlot || item.time}</div>
+                        <div>
+                          <span style={getTypeBadgeStyle(item.wasteType || item.type)}>{item.wasteType || item.type}</span>
+                        </div>
+                        <div style={{ fontSize: '12px', color: '#334155', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {item.district} {item.area ? `(${item.area})` : ''}
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                          <button
+                            onClick={() => handleRemove(item._id)}
+                            style={{
+                              cursor: 'pointer',
+                              background: 'none',
+                              border: 'none',
+                              color: '#ef4444',
+                              fontSize: '12px',
+                              fontWeight: '600',
+                              textDecoration: 'underline',
+                              padding: 0
+                            }}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <button
-                      onClick={() => handleRemove(item._id)}
-                      style={{
-                        cursor: 'pointer',
-                        background: 'none',
-                        border: 'none',
-                        color: '#ef4444',
-                        fontSize: '12px',
-                        fontWeight: '600',
-                        textDecoration: 'underline',
-                        padding: 0
-                      }}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                </div>
-              ))
+                ))}
+              </div>
             )}
           </div>
 

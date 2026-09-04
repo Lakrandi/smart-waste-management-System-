@@ -1,7 +1,17 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import AdminSidebar from '../../components/AdminSidebar';
 
 const AdminDashboard = () => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const collectionsData = [
     { date: '16 Jul 2026', day: 'Thursday', time: '9:00 AM', type: 'Recyclable' },
     { date: '17 Jul 2026', day: 'Friday', time: '8:30 AM', type: 'Recyclable' },
@@ -13,7 +23,13 @@ const AdminDashboard = () => {
     <div style={styles.container}>
       <AdminSidebar />
 
-      <div style={styles.mainContent}>
+      <div
+        style={{
+          ...styles.mainContent,
+          marginLeft: isMobile ? '0px' : '260px',
+          padding: isMobile ? '80px 15px 20px 15px' : '40px 50px',
+        }}
+      >
         {/* Title Section */}
         <div style={styles.headerContainer}>
           <h1 style={styles.title}>Admin Dashboard</h1>
@@ -21,7 +37,12 @@ const AdminDashboard = () => {
         </div>
 
         {/* Top Summary Cards */}
-        <div style={styles.cardsContainer}>
+        <div
+          style={{
+            ...styles.cardsContainer,
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
+          }}
+        >
           <div style={styles.card}>
             <span style={styles.cardNumber}>1</span>
             <span style={styles.cardLabel}>OPEN COMPLAINTS</span>
@@ -95,12 +116,11 @@ const styles = {
     fontFamily: 'Inter, sans-serif, system-ui',
   },
   mainContent: {
-    marginLeft: '260px',
     flex: 1,
-    padding: '40px 50px',
     backgroundColor: '#e0e0e0',
     minHeight: '100vh',
     boxSizing: 'border-box',
+    width: '100%',
   },
   headerContainer: {
     textAlign: 'left',
@@ -121,7 +141,6 @@ const styles = {
   },
   cardsContainer: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(3, 1fr)',
     gap: '20px',
     marginBottom: '35px',
   },
@@ -133,7 +152,7 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'center',
+    justify: 'center',
     height: '90px',
     boxSizing: 'border-box',
   },
@@ -164,18 +183,19 @@ const styles = {
   tableWrapper: {
     border: '1px solid #a0a0a0',
     borderRadius: '12px',
-    overflow: 'hidden',
+    overflowX: 'auto',
     backgroundColor: '#ffffff',
     boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
   },
   table: {
     width: '100%',
+    minWidth: '500px',
     borderCollapse: 'collapse',
     textAlign: 'left',
     fontSize: '13.5px',
   },
   tableHeaderRow: {
-    backgroundColor: '#1b3b1e',  
+    backgroundColor: '#1b3b1e',
     color: '#ffffff',
   },
   th: {
@@ -188,7 +208,7 @@ const styles = {
   },
   tableRow: {
     backgroundColor: '#ffffff',
-    height: '56px',  
+    height: '56px',
   },
   td: {
     padding: '0 24px',
@@ -200,9 +220,9 @@ const styles = {
   badge: {
     display: 'inline-flex',
     alignItems: 'center',
-    justifyContent: 'center',
+    justify: 'center',
     height: '32px',
-    width: '130px',  
+    width: '130px',
     borderRadius: '4px',
     fontSize: '12px',
     fontWeight: '600',
