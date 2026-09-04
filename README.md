@@ -1,47 +1,210 @@
-# CleanTrack - Smart Waste Management System
-Smart Waste Management System for Sri Lanka - A web platform connecting residents and local councils.
- 
+#  CleanTrack - Smart Waste Management System
 
-> **Module:** CCS2313 - Project Management  
-> **University:** Sri Lanka Technology Campus (SLTC)  
-> **Faculty:** Faculty of Computing & IT  
-> **Group:** Group 2  
+CleanTrack is a web-based smart waste management system designed to improve waste collection services in Sri Lanka.
+
+The system connects residents, council administrators, and waste collection drivers through one platform. It allows residents to view collection schedules, submit complaints, provide feedback, and track garbage collection vehicles in real time.
 
 ---
 
-## 👥 Team Members
+##Live System
 
-* **Nuha Kazim** (CIT-24-02-0172) - *Project Manager*
-* **Lakrandi Kobewaththa** (CIT-24-02-0084) - *Business Analyst*
-* **Lashini Nimesha** (CIT-24-02-0197) - *UI/UX Designer/Engineer*
-* **Dewmi Thathsarani** (CIT-24-02-0063) - *Frontend Developer*
-* **Thakshila Amarawansha** (CIT-24-02-0031) - *Backend Developer*
+### Frontend
+https://smart-waste-management-system-blond-two.vercel.app
 
----
-
-## 📌 Project Overview
-CleanTrack is a web-based platform designed to bridge the communication gap between citizens and local councils in Sri Lanka. It enables residents to report overflowing garbage bins and illegal dumping with photo uploads, while allowing council administrators to manage complaints, issue pickup schedules, and send advance collection alerts.
+### Backend API
+https://cleantrack-backend-hst9.onrender.com
 
 ---
 
-## ✨ Core Features
+## Project Objectives
 
-### 🏡 Resident Portal
-* **User Authentication:** Login and Registration with Zone allocation.
-* **Issue Reporting:** Upload photos and report overflowing bins/illegal dumping.
-* **Track Complaints:** Real-time ticket status tracking (`Pending`, `In Review`, `Resolved`).
-* **Collection Schedule:** View upcoming waste collection dates and waste types (Recyclable / Non-recyclable).
-* **Feedback System:** Rate resolved complaints and provide service feedback.
+The main objectives of CleanTrack are:
 
-### 🏛️ Council Admin Panel
-* **Admin Authentication:** Secure staff login.
-* **Dashboard Overview:** Monitor total open complaints, resolved issues, and upcoming collections per zone.
-* **Complaint Resolution:** Review incoming resident reports and mark tickets as `Resolved`.
-* **Manage Schedules:** Publish and remove garbage collection schedules per zone.
+- Improve communication between residents and local councils
+- Provide clear waste collection schedules
+- Allow residents to report waste-related problems
+- Track garbage collection vehicles in real time
+- Send SMS arrival notifications to residents
+- Help council staff manage complaints and collection schedules
+- Reduce uncollected waste and improve community cleanliness
 
 ---
 
-## 🎨 Design System & Theme
-* **Primary Color:** Dark Green (`#1E3A2B`)
-* **Accent Color:** Mint Green (`#E8F5E9` / `#2E7D32`)
-* **UI Components:** Clean Track Sidebar Navigation, Action Cards, Responsive Forms.
+## User Roles
+
+### Resident
+
+Residents can:
+
+- Create an account
+- Login to the system
+- View waste collection schedules
+- Submit complaints
+- Track complaint status
+- Submit feedback
+- View live garbage truck location
+- Update profile details
+
+### Admin / Council Officer
+
+Administrators can:
+
+- Access the admin dashboard
+- View resident complaints
+- Filter complaints by district
+- Update complaint status
+- Add collection schedules
+- Delete collection schedules
+- View resident feedback
+
+### Driver
+
+Drivers can:
+
+- Access the driver page
+- Share GPS location
+- Start and stop live tracking
+- Select a district
+- Send SMS arrival alerts to residents
+
+---
+
+## Main Features
+
+- Resident registration and login
+- JWT-based authentication
+- Complaint management
+- Collection schedule management
+- Resident feedback system
+- User profile management
+- Real-time garbage truck tracking
+- GPS location sharing
+- SMS notifications
+- Admin management dashboard
+- District-based services
+- Responsive web interface
+
+---
+
+## System Architecture
+
+CleanTrack follows a **3-Tier Architecture**.
+
+### Tier 1 - Presentation Layer
+
+**Technology:** React + Vite  
+**Hosting:** Vercel
+
+Responsible for:
+
+- Resident interface
+- Admin interface
+- Driver interface
+- Forms and dashboards
+- Live tracking interface
+
+### Tier 2 - Application Layer
+
+**Technology:** Node.js + Express.js  
+**Hosting:** Render
+
+Responsible for:
+
+- REST APIs
+- Authentication
+- User management
+- Complaint management
+- Schedule management
+- Feedback management
+- GPS location processing
+- SMS notification processing
+- Real-time communication using Socket.IO
+
+### Tier 3 - Data Layer
+
+**Technology:** MongoDB Atlas
+
+Stores:
+
+- Users
+- Complaints
+- Feedback
+- Collection schedules
+- Waste requests
+- Other application data
+
+---
+
+## External Services
+
+### Notify.lk
+
+Used to send SMS arrival notifications to registered residents.
+
+### Socket.IO
+
+Used for real-time communication between the driver and resident live tracking pages.
+
+### OpenStreetMap + Leaflet
+
+Used to display the garbage truck location on an interactive map.
+
+---
+
+## Technologies Used
+
+### Frontend
+
+- React
+- Vite
+- JavaScript
+- CSS
+- Axios
+- Leaflet
+- Socket.IO Client
+
+### Backend
+
+- Node.js
+- Express.js
+- MongoDB
+- Mongoose
+- JSON Web Token (JWT)
+- bcrypt
+- Socket.IO
+
+### Cloud Services
+
+- Vercel - Frontend Hosting
+- Render - Backend Hosting
+- MongoDB Atlas - Cloud Database
+- Notify.lk - SMS Service
+
+---
+
+##  Project Structure
+
+```text
+smart-waste-management-System/
+│
+├── frontend/
+│   ├── public/
+│   ├── src/
+│   │   ├── assets/
+│   │   ├── components/
+│   │   └── pages/
+│   │       ├── admin/
+│   │       ├── driver/
+│   │       └── resident/
+│   ├── package.json
+│   └── vite.config.js
+│
+├── backend/
+│   ├── controllers/
+│   ├── models/
+│   ├── routes/
+│   ├── middleware/
+│   ├── server.js
+│   └── package.json
+│
+└── README.md
