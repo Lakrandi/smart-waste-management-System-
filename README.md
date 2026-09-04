@@ -6,10 +6,13 @@ The system connects residents, council administrators, and waste collection driv
 
 ---
 
-##Live System
+## Live System
 
 ### Frontend
 https://smart-waste-management-system-blond-two.vercel.app
+
+## Driver
+https://smart-waste-management-system-blond-two.vercel.app/driver
 
 ### Backend API
 https://cleantrack-backend-hst9.onrender.com
