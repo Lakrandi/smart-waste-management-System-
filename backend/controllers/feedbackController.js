@@ -2,10 +2,13 @@ const Feedback = require('../models/Feedback');
 const Complaint = require('../models/Complaint');
 
 
+ 
+// 1. CREATE FEEDBACK
+ 
 exports.createFeedback = async (req, res) => {
   try {
 
-    // Authentication check
+    // Check if user is logged in
     if (!req.user) {
       return res.status(401).json({
         message: "User not authenticated"
@@ -20,43 +23,35 @@ exports.createFeedback = async (req, res) => {
       type
     } = req.body;
 
+    const userId = req.user._id || req.user.id;
 
-    const userId =
-      req.user._id || req.user.id;
-
-
+    // Convert rating to number
     const numericRating = Number(rating);
 
+    // Validate rating
     if (
       !numericRating ||
       numericRating < 1 ||
       numericRating > 5
     ) {
       return res.status(400).json({
-        message:
-          "Rating must be between 1 and 5"
+        message: "Rating must be between 1 and 5"
       });
     }
 
 
     let complaint = null;
 
-
+ 
+    // If feedback is related to a complaint
      
-
     if (complaintId) {
-
-     
-
       complaint = await Complaint.findOne({
         _id: complaintId,
-
         user: userId,
-
         status: {
           $regex: /^resolved$/i
         },
-
         isRated: {
           $ne: true
         }
@@ -69,56 +64,40 @@ exports.createFeedback = async (req, res) => {
             "You can only rate your own resolved complaints that have not already been rated."
         });
       }
-
     }
 
 
-     
-
+    
     const newFeedback = new Feedback({
-
       user: userId,
 
       rating: numericRating,
 
-      comment:
-        comment || '',
+      comment: comment || '',
 
       serviceType:
         serviceType ||
         type ||
-        (complaintId
-          ? 'complaint'
-          : 'general'),
-
-      complaint:
-        complaintId || null
-
+        (complaintId ? 'complaint' : 'general')
     });
 
 
     await newFeedback.save();
 
 
+     
+    // Mark complaint as rated
     
-
     if (complaint) {
-
       complaint.isRated = true;
 
       await complaint.save();
-
     }
 
 
-    res.status(201).json({
-
-      message:
-        "Feedback submitted successfully",
-
-      data:
-        newFeedback
-
+    return res.status(201).json({
+      message: "Feedback submitted successfully",
+      data: newFeedback
     });
 
 
@@ -129,40 +108,31 @@ exports.createFeedback = async (req, res) => {
       error
     );
 
-    res.status(500).json({
+    return res.status(500).json({
       message: error.message
     });
-
   }
 };
 
 
+
+
+// 2. GET ALL FEEDBACKS - ADMIN
  
 exports.getAllFeedbacks = async (req, res) => {
-
   try {
 
-    const feedbacks =
-      await Feedback.find()
-
-        .populate(
-          'user',
-          'name email'
-        )
-
-        .populate(
-          'complaint',
-          'title district status'
-        )
-
-        .sort({
-          createdAt: -1
-        });
+    const feedbacks = await Feedback.find()
+      .populate(
+        'user',
+        'name email'
+      )
+      .sort({
+        createdAt: -1
+      });
 
 
-    res.status(200).json(
-      feedbacks
-    );
+    return res.status(200).json(feedbacks);
 
 
   } catch (error) {
@@ -172,46 +142,37 @@ exports.getAllFeedbacks = async (req, res) => {
       error
     );
 
-    res.status(500).json({
+    return res.status(500).json({
       message: error.message
     });
-
   }
-
 };
 
 
 
-// 3. Delete feedback
+ 
+// 3. DELETE FEEDBACK
  
 exports.deleteFeedback = async (req, res) => {
-
   try {
 
-    const feedback =
-      await Feedback.findById(
-        req.params.id
-      );
+    const feedback = await Feedback.findById(
+      req.params.id
+    );
 
 
     if (!feedback) {
-
       return res.status(404).json({
-        message:
-          "Feedback not found"
+        message: "Feedback not found"
       });
-
     }
 
 
     await feedback.deleteOne();
 
 
-    res.status(200).json({
-
-      message:
-        "Feedback deleted successfully"
-
+    return res.status(200).json({
+      message: "Feedback deleted successfully"
     });
 
 
@@ -222,10 +183,8 @@ exports.deleteFeedback = async (req, res) => {
       error
     );
 
-    res.status(500).json({
+    return res.status(500).json({
       message: error.message
     });
-
   }
-
 };
