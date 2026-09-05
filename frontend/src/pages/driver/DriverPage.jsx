@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
 import axios from 'axios';
 
-// Connect to Socket.io server
-const socket = io('https://cleantrack-backend-hst9.onrender.com'); 
+const socket = io('https://cleantrack-backend-hst9.onrender.com', {
+  transports: ['websocket', 'polling']
+});
 
-// List of all 25 districts in Sri Lanka
 const SRI_LANKA_DISTRICTS = [
   'Ampara', 'Anuradhapura', 'Badulla', 'Batticaloa', 'Colombo',
   'Galle', 'Gampaha', 'Hambantota', 'Jaffna', 'Kalutara',
@@ -20,14 +20,45 @@ const DriverPage = () => {
   const [district, setDistrict] = useState('Gampaha');
   const [loading, setLoading] = useState(false);
 
-  const toggleTracking = () => {
+  const toggleTracking = async () => {
     if (isTracking) {
-      socket.emit('stopLocation');
+      try {
+        await axios.post('https://cleantrack-backend-hst9.onrender.com/api/location/status', {
+          status: 'Disconnected',
+          isTracking: false,
+          district: district
+        });
+      } catch (error) {
+        console.error('Failed to update stop status in DB:', error);
+      }
+
+      socket.emit('stopLocation', { district: district });
+      setIsTracking(false);
+      setCurrentCoords(null);
+    } else {
+      const activeCoords = currentCoords || { lat: 6.9271, lng: 79.8612 };
+      try {
+        await axios.post('https://cleantrack-backend-hst9.onrender.com/api/location/status', {
+          status: 'On Route',
+          isTracking: true,
+          district: district,
+          lat: activeCoords.lat,
+          lng: activeCoords.lng
+        });
+      } catch (error) {
+        console.error('Failed to update start status in DB:', error);
+      }
+
+      socket.emit('locationUpdate', {
+        lat: activeCoords.lat,
+        lng: activeCoords.lng,
+        district: district
+      });
+
+      setIsTracking(true);
     }
-    setIsTracking(!isTracking);
   };
 
-  // Send district-wide SMS alert via backend API
   const handleSendSMSAlert = async (selectedDistrict) => {
     setLoading(true);
     try {
@@ -43,35 +74,41 @@ const DriverPage = () => {
 
   useEffect(() => {
     let watchId;
+    let intervalId;
 
     if (isTracking) {
+      const sendLocationUpdate = (coords) => {
+        setCurrentCoords(coords);
+        socket.emit('locationUpdate', {
+          lat: coords.lat,
+          lng: coords.lng,
+          district: district
+        });
+      };
+
       if ('geolocation' in navigator) {
         watchId = navigator.geolocation.watchPosition(
           (position) => {
-            const { latitude, longitude } = position.coords;
-            setCurrentCoords({ lat: latitude, lng: longitude });
-
-            // Transmit real-time GPS location via Socket.io
-            socket.emit('updateLocation', { lat: latitude, lng: longitude });
+            sendLocationUpdate({ lat: position.coords.latitude, lng: position.coords.longitude });
           },
           (error) => {
-            alert('GPS Error: ' + error.message);
+            console.warn('GPS Warning:', error.message);
+            sendLocationUpdate(currentCoords || { lat: 6.9271, lng: 79.8612 });
           },
-          {
-            enableHighAccuracy: true,
-            maximumAge: 0,
-            timeout: 5000,
-          }
+          { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
         );
-      } else {
-        alert('Your phone does not support GPS tracking.');
+
+        intervalId = setInterval(() => {
+          sendLocationUpdate(currentCoords || { lat: 6.9271, lng: 79.8612 });
+        }, 3000);
       }
     }
 
     return () => {
       if (watchId) navigator.geolocation.clearWatch(watchId);
+      if (intervalId) clearInterval(intervalId);
     };
-  }, [isTracking]);
+  }, [isTracking, district, currentCoords]);
 
   return (
     <div style={styles.container}>
@@ -95,10 +132,8 @@ const DriverPage = () => {
         </div>
       )}
 
-      {/* District Alert Section */}
       <div style={styles.smsBox}>
         <h3>📲 Send Arrival SMS Alert</h3>
-        
         <div style={{ marginBottom: '15px' }}>
           <label><strong>Select District: </strong></label>
           <select 
@@ -107,9 +142,7 @@ const DriverPage = () => {
             style={styles.input}
           >
             {SRI_LANKA_DISTRICTS.map((dist) => (
-              <option key={dist} value={dist}>
-                {dist}
-              </option>
+              <option key={dist} value={dist}>{dist}</option>
             ))}
           </select>
         </div>
